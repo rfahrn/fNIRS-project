@@ -1,0 +1,9 @@
+function r = checkToolboxes_Homer2()
+
+toolboxes = {...
+     'Signal Processing Toolbox', ...
+     'Symbolic Math Toolbox', ...
+    };
+
+r = checkToolboxes(toolboxes, 'Homer2');
+

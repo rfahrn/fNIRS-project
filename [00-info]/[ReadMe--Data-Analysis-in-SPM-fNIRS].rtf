@@ -1,0 +1,142 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1561\cocoasubrtf100
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red26\green26\blue26;\red255\green255\blue255;}
+{\*\expandedcolortbl;;\cssrgb\c13333\c13333\c13333;\cssrgb\c100000\c100000\c100000;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww14320\viewh12080\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs32 \cf0 Data analysis in SPM fNIRS
+\fs24 \
+\
+
+\b >> Press button [Spatial]. <<
+\b0 \
+\
+Select files for spatial registration of fNIRS channels.\
+> Select the files ch_config.csv, optode_positions.csv, reference_positions.csv inside the folder \'91Spatial-registration-files\'92 and press [Done].\
+\
+Select fNIRS measurements (Y) to be paired with the channel.\
+> Select the file NIRS.mat and press [Done].\
+\
+::::: You will see the estimation results now :::::\
+(close all windows except SPM fNIRS)\
+\
+\
+
+\b >> Press button [Temporal]. <<
+\b0 \
+\
+Select fNIRS file for temporal preprocessing.\
+> Select the file NIRS.mat and press [Done].\
+\
+Apply temporal preprocessing to fNIRS data:\
+\
+Window opens:\
+\
+- Motion artefact correction? > press [no]\
+(as we have already done this in HOMER2)\
+\
+\pard\pardeftab720\partightenfactor0
+\cf0 \expnd0\expndtw0\kerning0
+- Physiological noise removal? > \kerning1\expnd0\expndtw0 press [no]\expnd0\expndtw0\kerning0
+\
+(as we have already band-pass filtered the data in HOMER2)\
+\
+- Change sampling rate? > \kerning1\expnd0\expndtw0 press [no]\expnd0\expndtw0\kerning0
+\
+(You can down-sample to 2 or 1 Hz if you like.)\
+\
+- Detrending? > press [DCT]\
+(This is a mandatory step that you cannot skip!)\
+\
+- cut-off period [sec] > enter 256 and press return\
+(This way it won\'92t remove any slow frequency component as we have already high-pass filtered at 0.01 Hz in HOMER2. It won\'92t change anything.)\
+\
+- Temporal smoothing? > press [HRF].\
+(This is a very important step to correct for serial autocorrelations. The use of HRF is called \'91Precoloring method\'92 and it is more appropriate than pre-whitening. For more\'a0info have a look at this paper: \cf2 \cb3 Ye, Jong Chul, et al. "NIRS-SPM: statistical parametric mapping for near-infrared spectroscopy."\'a0Neuroimage\'a044.2 (2009): 428-447. You will also find this in many\cf0 \cb1  of Karl Friston\'92s papers.)\kerning1\expnd0\expndtw0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+::::: You can compare the raw and filtered signals in the SPM fNIRS viewer (NOTE: raw means here preprocessed in HOMER2!!!) :::::\
+(close all windows except SPM fNIRS)\
+\
+
+\b >> Press button [Specify 1st Level]. <<
+\b0 \
+\
+Select a fNIRS file (NIRS.mat)\
+> Select the file NIRS.mat and press [Done].\
+\
+Select a SPM directory\
+> Select the folder SPM-RESULTS and press [Done].\
+\
+Window opens:\
+\
+- Hb signal to be analysed? > select HbO and press [Done]\
+\
+- specify design in > press [scans]\
+\
+- specify conditions using a file? > press [yes]\
+> Select file onsets.mat and press [Done].\
+(The information about the conditions is saved in the onsets.mat file.)\
+\
+- Other regressors (eg, systematic confounds); user specified > Leave it set to 0 and press [enter].\
+\
+- Hemodynamic Basis functions\'85 > Select basis set \'91hrf\'92.\
+\
+::::: Each time \cf2 \cb3 \expnd0\expndtw0\kerning0
+a window containing the statistical design will open.\cf0 \cb1 \kerning1\expnd0\expndtw0  :::::\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \expnd0\expndtw0\kerning0
+(For each condition you will have 1 regressor. In this case you have 5 conditions + rest (i.e. a total of 6 \'91conditions\'92), thus the design matrix will have 6 regressors and a\'a0constant term.)\cf0 \cb1 \kerning1\expnd0\expndtw0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 (close all windows except SPM fNIRS)\
+\
+\
+
+\b >> Press button [Estimate]. <<
+\b0 \
+\
+Select SPM file for fNIRS\
+> Select the file SPM.mat inside the folder /SPM-RESULTS/HbO and press [Done].\
+(The GLM parameters will be estimated now \'97 this will take quite a while!)\
+\
+\
+
+\b >> Press button [Results]. <<
+\b0 \
+\
+Select a SPM file for fNIRS\
+> Select the SPM.mat file inside the folder SPM-RESULTS/HbO and press [Done].\
+\
+SPM will now load the channel-wise parameters, interpolate parameters and estimate smoothness. When done a window with the SPM brain template will open.\
+\
+Press [Contrast].\
+(The SPM contrast manager window will open.)\
+> Press [Define new contrast\'85]\
+- name: Enter a name, for example, \'93contrast 1 minus contrast 2\'94.\
+- type: t-contrast\
+- contrast: define contrast(s) (see below) and press [OK]\
+> Select a contrast and press [Done] when finished (just press once, the calculation will take a while).\
+\
+### How to define a contrast in SPM ###########################################\
+\
+You have to define the contrast that will tell SPM which conditions you want to compare. You do this \cf2 \cb3 \expnd0\expndtw0\kerning0
+by subtracting condition \'91X\'92 minus condition \'91Y\'92. You can also compare more than two conditions. This is an example for comparing condition 1 and 2:\
+\
+1 0 0 0 0 -1\
+\
+This is how it works:\
+[\{0\} \{0\} \{0\} \{0\} \{0\} \{0\}]\
+[\{condition 1\} \{condition 2\} \{condition 3\} \{condition 4\} \{condition 5\} \{rest\}]\
+\
+Putting it simply, by using the value 1 for condition 1 and the value -1 for \'91rest\'92, SPM will subtract the measurements obtained in the rest period from those obtained in condition 1. Thus, the results will show you whether there was \'91more\'92 HbO in condition 1 compared to the rest period. If you compare condition 1 and 2, you don\'92t need to enter all the 0s for the other conditions as SPM will set every missing value to 0. (e.g., 1 -1)\
+\
+\cf0 \cb1 \kerning1\expnd0\expndtw0 #######################################################################\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf2 \cb3 \expnd0\expndtw0\kerning0
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \cb1 \kerning1\expnd0\expndtw0 Press [Activation].\
+\
+A window will open, which will ask you whether you want to correct the p value (threshold).\
+> Press [none] (for uncorrected) and start with 0.05 and reduce threshold if you see something (i.e., increased activation in your regions of interest [ROI]).}

@@ -1,0 +1,167 @@
+function refpts = getRefpts(refpts, dirname0)
+
+if iscell(dirname0)
+    for ii=1:length(dirname0)
+        refpts = getRefpts(refpts, dirname0{ii});
+        if ~refpts.isempty(refpts)
+            return;
+        end
+    end
+    return;
+end
+
+if isempty(dirname0)
+    return;
+end
+
+if dirname0(end)~='/' && dirname0(end)~='\'
+    dirname0(end+1)='/';
+end
+
+dirname = [dirname0, 'anatomical/'];
+
+if exist([dirname, 'refpts.mat'],'file')
+
+    load([dirname, 'refpts.mat'],'-mat');
+    
+else
+
+    if ~isempty(refpts.pos)
+        return;
+    end
+    if ishandles(refpts.handles.labels)
+        return;
+    end
+    
+    % Find ref point files 
+    [refpts_fn,refpts_labels_fn] = findRefptsFile(dirname);
+    if isempty(refpts_fn) | isempty(refpts_labels_fn)        
+        fprintf('Note: No ref points file found in %s\n', dirname);
+        return;
+    end
+    
+    % See if labels file matches ref points file 
+    if ~matchRefptsFilenames(refpts_fn,refpts_labels_fn)
+        menu('Warning: Ref points file and ref points labels file don''t match. Ref points not loaded.','OK');
+        return;        
+    end
+    
+    % Found a ref pts file we can use
+    rp = load([dirname refpts_fn],'-ascii');
+    if exist([dirname, 'refpts2vol.txt'],'file')
+        T_2vol = load([dirname, 'refpts2vol.txt'],'-ascii');
+    end        
+    rp = xform_apply(rp,T_2vol);
+    
+    fid = fopen([dirname refpts_labels_fn],'rt');
+    if fid~=-1
+        for ii=1:size(rp,1)
+            rp_label{ii} = fgetl(fid);
+        end
+        fclose(fid);
+    else
+        rp_label={};
+    end
+
+    refpts.pos    = rp;
+    refpts.labels = removeSpaces(rp_label);
+    refpts.T_2vol = T_2vol;    
+    if length(refpts.labels)>=5
+        set(refpts.handles.menuItemCalculateRefpts,'enable','on');
+    else
+        set(refpts.handles.menuItemCalculateRefpts,'enable','off');    
+    end
+    
+    if length(refpts.labels)>=50 & length(refpts.labels)<=100
+        refpts.size = 9;
+    elseif length(refpts.labels)>100
+        refpts.size = 8;
+    end
+    
+    [nz,iz,rpa,lpa,cz] = getLandmarks(refpts);
+    [refpts.orientation, refpts.center] = getOrientation(nz, iz, rpa, lpa, cz);
+      
+end
+
+if ~refpts.isempty(refpts)
+    refpts.pathname = dirname0;
+end
+
+
+
+
+% ----------------------------------------------------------------------
+function [refpts_fn,refpts_labels_fn] = findRefptsFile(dirname)
+
+refpts_fn = '';
+refpts_labels_fn = '';
+if exist([dirname 'refpts.txt'],'file') && exist([dirname 'refpts_labels.txt'],'file')
+    refpts_fn = 'refpts.txt';
+    refpts_labels_fn = 'refpts_labels.txt';
+else
+    %%% Else...for backward compatibility 
+
+    % Search for other possible ref pts files
+    files = dir([dirname 'refpts*.txt']);
+    for ii=1:length(files)
+        % check for file name with prefix refpts but no 'label' string in the
+        % file name then its our refpts file name.
+        if isempty(findstr(files(ii).name, '_label')) & ...
+           ~strcmp(files(ii).name, 'refpts2vol.txt')
+
+            refpts_fn = files(ii).name;
+            
+        % Else if 'label' string does exist in the file name then its our
+        % refpts labels file name.
+        elseif ~isempty(findstr(files(ii).name, '_label'))
+            
+            refpts_labels_fn = files(ii).name;
+            
+        end
+    end
+    
+end
+
+
+
+% ----------------------------------------------------------------------
+function b = matchRefptsFilenames(refpts_fn,refpts_labels_fn)
+
+b = 1;
+
+% Check to see that ref pts files (pts and labels) match eachother
+k1 = findstr(refpts_labels_fn, '_labels');
+k2 = [];
+if isempty(k1)
+    k2 = findstr(refpts_labels_fn, '_label');
+end
+
+refpts_fn_match = refpts_labels_fn;
+if ~isempty(k1)
+    refpts_fn_match(k1:k1+6) = [];
+elseif ~isempty(k2)
+    refpts_fn_match(k2:k2+5) = [];
+else
+    b = 0;
+    return;
+end
+
+b = strcmp(refpts_fn, refpts_fn_match);
+
+
+
+
+% ----------------------------------------------------------------------
+function foos = removeSpaces( boos )
+
+foos = {};
+for ii=1:length(boos)
+    kk=0;
+    for jj=1:length(boos{ii})
+        if boos{ii}(jj)~=' ';
+            kk=kk+1;
+            foos{ii}(kk) = boos{ii}(jj);
+        end
+    end
+end
+

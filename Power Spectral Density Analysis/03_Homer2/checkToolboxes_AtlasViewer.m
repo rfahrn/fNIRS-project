@@ -1,0 +1,9 @@
+function r = checkToolboxes_AtlasViewer()
+
+toolboxes = {...
+    'Image Processing Toolbox', ...
+    'Simulink', ...
+    };
+
+r = checkToolboxes(toolboxes, 'AtlasViewer');
+

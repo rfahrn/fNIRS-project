@@ -1,0 +1,149 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1504\cocoasubrtf830
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red26\green26\blue26;\red255\green255\blue255;}
+{\*\expandedcolortbl;;\cssrgb\c13333\c13333\c13333;\cssrgb\c100000\c100000\c100000;}
+\paperw16840\paperh23820\margl1440\margr1440\vieww16420\viewh13900\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 Before you start, copy-paste and rename the folder \'91SubjectID\'92. Give it a name that helps you identifying your participant, for example, S001 for subject #1.\
+\
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\fs22 \
+
+\f1 \
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf0 \expnd0\expndtw0\kerning0
+I don\'92t really like the preprocessing steps that can be done in the SPM-fNIRS software. I prefer preprocessing the data with Homer first and then use SPM-fNIRS.\
+\
+To do that, I\'92ve made a script (Conversion.m) that allows you to import the preprocessed Homer files (for both probes) in the SPM-fNIRS file format. It uses an SPM-fNIRS file template (NIRS_template.mat) and simply replaces all the template variables with the pre-processed data. It will automatically save the file NIRS.mat that you will use for your analyses. In this way you can perform the GLM on all the 44 channels at the same time.\
+\
+For each participant you will thus need:\
+- Digitizer folder: with optodes.csv, reference.csv, ch_config.txt\
+- NIRS_template.mat\
+- The two .nirs files (Probe1.nirs, Probe2.nirs)\
+- The onsets.mat file\'a0
+\fs32 \
+\
+Analysis of fNIRS data obtained with an ETG-4000 Hitachi system
+\fs24 \
+\
+\pard\pardeftab720\partightenfactor0
+
+\b \cf0 Step 1: Create an onsets.mat file
+\b0 \
+\
+>> Run 01_CreateOnsetsFile/find_onsets.m\'92\
+>> Select the raw probe data file (One is enough as the onsets are the same in both csv files.)\
+	(for example, select \'91Probe1.csv\'92)\
+\
+This will create a file called \'92onsets.mat\'92 in the folder \'9201_CreateOnsetsFile\'92.\
+\
+
+\b Step 2: Convert Hitachi to Homer2 file format
+\b0 \
+\
+>> Copy/paste the file \'92onsets.mat\'92 into the folder \'9202_Hitachi2Homer\'92\
+\
+>> Run \'9202_Hitachi2Homer/Hitachi_2_Homer.m\'92\
+>> Select the raw probe data file (for example, \'91Probe1.csv\'92)\
+>> Remove the marker at the end of each stimulus: Enter \'91y\'92\
+>> Select probe configuration: in this case \'913x5.pos\'92 (You can find these files in the folder \'9202_Hitachi2Homer\'92.)\
+>> Repeat these steps for the second probe (for example, \'91Probe2.csv\'92)!\
+\
+This creates files in the Homer2 format in the folder where you have the original data files. They have the same file name, but the extension \'91.nirs\'92.\
+\
+
+\b Step 3: Pre-processing in Homer2
+\b0 \
+\
+At this point you remove noise from the data (e.g. physiological noise/low-frequency content such as blood pressure oscillations (0.08\'970.12 Hz) and cardiac pulsation (around 1 Hz -> ~60 beats/min))\
+\
+>> Run \'9203_Homer2_/Homer2_UI.m\'92 (The Homer2 user interface will open.)\
+>> Click \'91File/Change Directory\'92 and select the directory with your \'91.nirs\'92 files\
+>> If Homer2 reports an error, click \'91ok\'92 and then \'91Yes to All\'92.  Homer2 will then try to fix the errors.\
+>> Select the spatial unit that are used for the opted positions. Click \'91mm\'92 or \'91cm\'92. (I usually use \'91mm\'92.)\
+>> A pop-up window opens: Select the pre-processing stream (I saved a .cfg file in the folder \'9203_homer2_PreProcessingStream\'92). You can also select all your filters/parameters individually by clicking on \'91Tools/Process Stream GUI\'92. It is possible to save and load the process options, so you don\'92t have to do that all over again when you process your next data set.\
+\
+Click on \'91Options\'92 and use these settings (for now; we have to look them up in the papers!!):\
+\
+\pard\pardeftab720\partightenfactor0
+\cf0 \kerning1\expnd0\expndtw0 {{\NeXTGraphic Screen Shot 2017-11-02 at 11.02.39.png \width12340 \height13340
+}¬}\expnd0\expndtw0\kerning0
+\
+\
+>> Then select the first \'91.nirs\'92 file in the UI (in the window on the left) and calculate the haemodynamic response function. To do this click on \'91Run\'92 (below \'91Calculate HRF\'92). Homer2 will now process your data (this takes a while!). Repeat this step for your second \'91.nirs\'92 file. Homer2 will create a new file with the extension \'91.nirs.orig\'92. This file contains your original (raw) data. It will overwrite the \'91.nirs\'92 file with the pre-processed data, thus you keep using this one.\
+>> Close Homer2 and continue in SPM-fNIRS. But before you need to convert the Homer2 files to the SPM format.\
+\
+\pard\pardeftab720\partightenfactor0
+
+\b \cf0 Step 4: Convert Homer2 file format to SPM file format
+\b0 \
+\
+>> Run \'9204_Homer2SPM-NIRS/Conversion\'92\
+>> Pop-up window: Select the NIRS_template file in your template subject folder\
+>> Pop-up window: Select the \'91.nirs file\'92 for the RIGHT channels (in this case this would be probe 2 as we have the channels >22 on the right patch)\
+>> Pop-up window: Select the \'91.nirs file\'92 for the LEFT channels\
+\
+The script will now convert your data and create a file called \'91NIRS.mat\'92 in the folder \'91\'9204_Homer2SPM-fNIRS\'92. Important: Leave the file in this folder!\
+\
+
+\b Step 5: Convert the Hitachi position file (\'91.pos\'92) to SPM files
+\b0 \
+\
+>> Run \'9205_pos2SPM/pos2spm.m\'92\
+>> Pop-up window -> fill in all necessary info (here for example: P-S01, 1 (one), 3x5x2 array, Only the SPM-fNIRS toolbox (SPM12) ; click proceed\
+>> select the\'92.pos\'92 file (it should be in your participant\'92s folder; it is usually called 0001.pos)). This will create 4 files in the Polhemus folder in the subject folder.\
+\
+
+\b Step 6: Run SPM-fNIRS\
+\pard\pardeftab720\partightenfactor0
+
+\b0 \cf0 \
+>> Run \'9206_SPM-fNIRS/spm_fnirs.m\'92. This will start SPM-fNIRS (a UI will open).\
+ \
+You will have to skip the conversion step (as you already have all your data converted into concentration) and:\
+\
+1) First run the spatial registration (first step: select the 3 csv-files in the Polhemus folder; second step: select the NIRS.mat file). You will get the estimation results here. \
+\
+2) Run the Temporal step loading the NIRS.mat file: here I use:\
+\
+- Motion Artifact Correction: No\
+\
+- Physiological Noise removal: No (as we have already band-pass filtered the data in Homer\
+\
+- Change Sampling rate: No (you can down sample to 2 or 1 Hz if you like)\
+\
+- Detrending: this is a mandatory step and you can\'92t skip that. I use DCT with a cut-off period of 256 s so it won\'92t remove any slow frequency component as we have already high-pass filtered at 0.01 Hz in Homer. It won\'92t change anything.\
+\
+- Temporal Smoothing: HRF. This is a very important step to correct for serial autocorrelations. The use of HRF is called \'91Precoloring method\'92 and it is more appropriate than pre whitening (the one you were doing with the AR(1)). For more \'a0info you can \'a0have a read at this paper or at many Friston\'92s papers [\cf2 \cb3 Ye, Jong Chul, et al. "NIRS-SPM: statistical parametric mapping for near-infrared spectroscopy."\'a0Neuroimage\'a044.2 (2009): 428-447].\
+\cf0 \cb1 \
+\cf2 \cb3 (3) Specify 1st level: Keep using\'a0hrf with time dispersion and derivatives as basis function (for each condition you will have 3 regressors. In this case you have 5 conditions, so the design matrix will have 15 regressors + a\'a0constant term)\
+\
+- select HbO\
+- select scans\
+- specify design in scans >> click yes\
+- select the onsets.mat file\
+- 0 other regressors\
+\
+>> A window containing the statistical design will open.\
+\
+>>> Repeat these steps for HbR and HbT. When you are done, you should have 3 folders (HbO, HbR, HbT) in your SPM directory, which contain a SPM.mat file each.\
+\cf0 \cb1 \
+\cf2 \cb3 (4) Estimate\
+Before doing this the first time, you need to change the setting for the maximum size of a MAT-file ({\field{\*\fldinst{HYPERLINK "http://uk.mathworks.com/help/matlab/import_export/mat-file-versions.html"}}{\fldrslt http://uk.mathworks.com/help/matlab/import_export/mat-file-versions.html}}). Follow the instructions and use version 7.3 or later. Restart Matlab, if necessary.\
+\
+- select the SPM.mat file in the HbO folder. This will automatically start the GLM parameter estimation (the whole estimation process will take quite a while).\
+- Do this also for HbR and HbT.\
+\cf0 \cb1 \
+\cf2 \cb3 (5) Results\
+- select the SPM.mat file in the HbO folder. SPM will process the results and a window with a brain template will open.\
+- Click Contrast. Here you have to choose which conditions you want to compare. You do this by subtracting condition x minus condition y. You can also compare more than two conditions. \
+\
+This is an example: 1 -1 0 0 0\
+\
+Simply put, it will subtract the activity measured in condition 2 from that measured in condition 1. This way you will see whether there is  (statistically speaking) an increased activation in condition 1.\
+\
+ \
+\
+}
