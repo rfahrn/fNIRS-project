@@ -74,10 +74,30 @@ create_csv('Data/S01/0001.pos', 'Data/S01/0001.csv')
 
 # read .csv file with columns: ch_name,x,y,z and create a dataframe
 df = pd.read_csv('Data/S01/0001.csv')
-print(df)
+
 
 # segmentation of Probe1 and Probe2 to new .csv files
 probe1 = df[df['ch_name'].str.startswith('Probe1')]
 probe2 = df[df['ch_name'].str.startswith('Probe2')]
+
+df.drop('ch_name', axis=1, inplace=True)
+new_names = 'S1 D1 S2 D2 S3 D3 S4 D4 S5 D5 S6 D6 S7 D7 S8 S9 D9 S10 D10 S11 D11 S12 D12 S13 D13 S14 D14 S15 D15 S16'.split()
+df.insert(0, 'ch_name', new_names)
+
+# rename
+
+# left hemisphere
+new_names_1 = 'S1 D1 S2 D2 S3 D3 S4 D4 S5 D5 S6 D6 S7 D7 S8'.split()
+
+# right hemisphere
+new_names_2 = 'S9 D9 S10 D10 S11 D11 S12 D12 S13 D13 S14 D14 S15 D15 S16'.split()
+
+probe1.drop('ch_name', axis=1, inplace=True)
+probe2.drop('ch_name', axis=1, inplace=True)
+probe1.insert(0, 'ch_name', new_names_1)
+probe2.insert(0, 'ch_name', new_names_2)
+
+
 probe1.to_csv('Data/S01/probe1_channel_montage.csv', index=False, sep=',')
 probe2.to_csv('Data/S01/probe2_channel_montage.csv', index=False, sep=',')
+df.to_csv('Data/S01/0001_edit.csv', index=False, sep=',')
