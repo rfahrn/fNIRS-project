@@ -27,6 +27,7 @@ def create_csv(read_filename, outfile):
                 indi.append(ind)
             in_val = list(zip(header, indi))
             in_val = in_val[10:40]
+            pre = in_val[0:10]
             h = ['ch_name', 'x', 'y', 'z']
             writer.writerow(h)
             for i in range(len(in_val)):

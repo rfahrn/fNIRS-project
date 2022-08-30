@@ -29,8 +29,20 @@ def get_montage(file_path):
     :return: montage
     """
     montage = mne.channels.read_custom_montage(file_path)
+    # TODO https://mne.tools/stable/generated/mne.channels.make_dig_montage.html#mne.channels.make_dig_montage
+    # TODO make_dig_montage might be better
     return montage
 
+# better montage
+def manual_montage(file_path):
+    """
+    :param file_path: .txt file with montage, open file and then read ch_pos: dict,
+    :return: montage """
+    with open (file_path) as file:
+        # get ch_pos (dict) shape keys (channel names) values are 3d coordinates (3,)
+        # get nasion position (array, shape(3,)
+        return mne.make_dig_montage(ch_pos=None, nasion=None, lpa=None, rpa=None, hsp=None, hpi=None,
+                                    coord_frame='unknown')
 
 # --------------------------------------------------------------------------------------------
 # test on first participant data: S01
@@ -46,15 +58,15 @@ raw2 = read_hitachi('Data/S01/S01_MES_Probe2.csv')
 
 # Fiducial point nasion not found, assuming identity unknown to head transformation
 # TODO Maybe try to set nasion point in csv file extract more information for channel montage look into the source code now used 'auto' for calculating nasion and ear position
-raw1.set_montage(get_montage('Data/S01/probe1_channel_montage.csv'))
-# raw2.set_montage(get_montage('Data/S01/probe2_channel_montage.csv'))
+#raw1.set_montage(get_montage('Data/S01/probe1_channel_montage.csv'))
+raw2.set_montage(get_montage('Data/S01/probe2_channel_montage.csv'))
 # TODO check why raw2 (right hemisphere) has problems plotting the sensors
 
 # plot  1 - 22 sensors for left hemisphere
 raw1.plot_sensors(show_names=True, sphere='auto')
 
 # plot 23-44 channels for right hemisphere
-# raw2.plot_sensors()
+raw2.plot_sensors()
 
 # ----------------------------------------------------------------------------------------------
 # blue source: S / green decoder: D
