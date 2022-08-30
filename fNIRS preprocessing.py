@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 import clevercsv
 import re
+import manuel_montage
 
 # Preprocessing of fNIRS
 
@@ -34,15 +35,18 @@ def get_montage(file_path):
     return montage
 
 # better montage
-def manual_montage(file_path):
+def self_montage(file_path, csv_file):
     """
-    :param file_path: .txt file with montage, open file and then read ch_pos: dict,
+    :param file_path: .pos file with montage, open file and then read ch_pos: dict,
     :return: montage """
+
     with open (file_path) as file:
         # get ch_pos (dict) shape keys (channel names) values are 3d coordinates (3,)
         # get nasion position (array, shape(3,)
-        return mne.make_dig_montage(ch_pos=None, nasion=None, lpa=None, rpa=None, hsp=None, hpi=None,
-                                    coord_frame='unknown')
+
+        lpa, rpa, nasion, hsp, coord_frame = manuel_montage.read_montage(file_path)
+        ch_pos = manuel_montage.convert_to_dic(csv_file)
+        return mne.channels.make_dig_montage(ch_pos=ch_pos, nasion= nasion, lpa=lpa, rpa=rpa, hsp=hsp, hpi=None, coord_frame='unknown')
 
 # --------------------------------------------------------------------------------------------
 # test on first participant data: S01
@@ -58,15 +62,16 @@ raw2 = read_hitachi('Data/S01/S01_MES_Probe2.csv')
 
 # Fiducial point nasion not found, assuming identity unknown to head transformation
 # TODO Maybe try to set nasion point in csv file extract more information for channel montage look into the source code now used 'auto' for calculating nasion and ear position
-#raw1.set_montage(get_montage('Data/S01/probe1_channel_montage.csv'))
-raw2.set_montage(get_montage('Data/S01/probe2_channel_montage.csv'))
+# raw1.set_montage(get_montage('Data/S01/probe1_channel_montage.csv'))
+# raw2.set_montage(get_montage('Data/S01/probe2_channel_montage.csv'))
 # TODO check why raw2 (right hemisphere) has problems plotting the sensors
-
+montage1 = self_montage(file_path='Data/S01/0001.pos', csv_file= 'Data/S01/probe1_channel_montage.csv')
+# raw2.set_montage(self_montage(file_path='Data/S01/0001.pos', csv_file= 'Data/S01/probe2_channel_montage.csv'))
 # plot  1 - 22 sensors for left hemisphere
-raw1.plot_sensors(show_names=True, sphere='auto')
+mne.viz.plot_montage(montage1, scale_factor=20, show_names=True, kind='3d', sphere= 'auto', verbose=None)
 
 # plot 23-44 channels for right hemisphere
-raw2.plot_sensors()
+#raw2.plot()
 
 # ----------------------------------------------------------------------------------------------
 # blue source: S / green decoder: D
@@ -88,7 +93,7 @@ events = mne.find_events(raw=raw1, initial_event=True)
 
 
 event_dict = {'Sp': 1, 'Rot-TS': 2, 'Rot-Blesser': 3,'NV': 4, 'NV-Rot': 5}
-fig = mne.viz.plot_events(events, event_id=event_dict, sfreq=raw1.info['sfreq'], first_samp=raw1.first_samp)
+# fig = mne.viz.plot_events(events, event_id=event_dict, sfreq=raw1.info['sfreq'], first_samp=raw1.first_samp)
 # ----------------------------------------------------------------------------------------------
 # print(mne.pick_types(raw2.info, meg=False, eeg=False, fnirs=True, exclude=[]))
 
