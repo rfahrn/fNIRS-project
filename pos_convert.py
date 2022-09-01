@@ -9,7 +9,7 @@ def create_csv(read_filename, outfile):
     Creates a .csv file out of .pos data
     :param read_filename: input file path that gets read
     :param outfile: path to which the output gets written
-    :return:
+    :return: None (just creates an output-file)
     """
 
     with open(read_filename, 'r') as file:
@@ -71,10 +71,14 @@ def create_csv(read_filename, outfile):
 os.makedirs('C:/Users/rebec/fNIRS-project/Data/S01', exist_ok=True)
 
 # write .pos to .csv
-create_csv('Data/S01/0001.pos', 'Data/S01/0001.csv')
+# create_csv('Data/S01/0001.pos', 'Data/S01/0001.csv')
+# create_csv('Data/S33/0001.pos', 'Data/S33/0001.csv')
+create_csv('Data/S11/0001.pos', 'Data/S11/0001.csv')
 
 # read .csv file with columns: ch_name,x,y,z and create a dataframe
-df = pd.read_csv('Data/S01/0001.csv')
+# df = pd.read_csv('Data/S01/0001.csv')
+# df = pd.read_csv('Data/S33/0001.csv')
+df = pd.read_csv('Data/S11/0001.csv')
 
 
 # segmentation of Probe1 and Probe2 to new .csv files
@@ -98,7 +102,20 @@ probe2.drop('ch_name', axis=1, inplace=True)
 probe1.insert(0, 'ch_name', new_names_1)
 probe2.insert(0, 'ch_name', new_names_2)
 
-
+"""
 probe1.to_csv('Data/S01/probe1_channel_montage.csv', index=False, sep=',')
 probe2.to_csv('Data/S01/probe2_channel_montage.csv', index=False, sep=',')
-df.to_csv('Data/S01/0001_edit.csv', index=False, sep=',')
+
+probe1.to_csv('Data/S34/probe1_channel_montage.csv', index=False, sep=',')
+probe2.to_csv('Data/S34/probe2_channel_montage.csv', index=False, sep=',')
+df.to_csv('Data/S34/0001_edit.csv', index=False, sep=',')
+
+
+probe1.to_csv('Data/S33/probe1_channel_montage.csv', index=False, sep=',')
+probe2.to_csv('Data/S33/probe2_channel_montage.csv', index=False, sep=',')
+df.to_csv('Data/S33/0001_edit.csv', index=False, sep=',')
+
+"""
+probe1.to_csv('Data/S11/probe1_channel_montage.csv', index=False, sep=',')
+probe2.to_csv('Data/S11/probe2_channel_montage.csv', index=False, sep=',')
+df.to_csv('Data/S11/0001_edit.csv', index=False, sep=',')

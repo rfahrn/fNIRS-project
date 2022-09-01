@@ -19,7 +19,7 @@ def read_montage(filename):
     """
     :param filename: file of montage coordinates from .pos
     we need following parameters: ch_pos, nasion, lpa, rpa, hsp (none), hpi (none), coord_frame = MRI 'mri'
-    :returns right format for function make_dig_montage
+    :returns right format for function make_dig_montage arrays and matrix
     """
     with open(filename, 'r') as file:
         lines = file.readlines()
@@ -62,12 +62,11 @@ def read_montage(filename):
                 print(list_content)
 
         hsp = np.matrix((dic['Back'], dic['Top']))
+        back = np.array(dic['Back'])
+        top = np.array(dic['Top'])
         lpa = np.array(dic['lpa'])
         rpa = np.array(dic['rpa'])
         nasion = np.array(dic['nasion'])
         coord_frame = 'mri' # or 'unknown'
 
         return lpa, rpa, nasion, hsp, coord_frame
-
-
-print(read_montage('Data/S01/0001.pos'))
