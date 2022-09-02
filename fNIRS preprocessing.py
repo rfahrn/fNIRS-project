@@ -142,7 +142,7 @@ channel_names2 = raw2.info.ch_names
 
 
 
-montage11 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/0001_edit.csv')
+# montage11 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/0001_edit.csv')
 
 # left hemisphere (Probe 1)
 montage11_1 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/probe1_channel_montage.csv')
@@ -152,9 +152,12 @@ raw1.set_montage(montage11_1,match_case=True,match_alias=True,on_missing='ignore
 montage11_2 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/probe2_channel_montage.csv')
 
 # mne.set_montage right hemisphere: raises Error - IndexError: index 44 is out of bounds for axis 0 with size 44
-raw2.set_montage(montage11_2)
+# raw2.set_montage(montage11_2)
 
-
+montage11_1.save('[00-info]/montage11_1.fif', overwrite=True)
+montage11_2.save('[00-info]/montage11_2.fif', overwrite=True)
+mne.io.write_info('[00-info]/debug-info_1.fif', raw1.info)
+mne.io.write_info('[00-info]/debug-info_2.fif', raw2.info)
 """
 def init():
     fig.gca().view_init(azim=-65, elev=25)
@@ -207,7 +210,7 @@ for angle in range(0, 360):
 # ---------------------------------------------------------------------------------------------
 # Get events
 #
-events = mne.find_events(raw=raw1, initial_event=True)
+# events = mne.find_events(raw=raw1, initial_event=True)
 # sfreq = raw1.info['sfreq']
 # report = mne.Report(title='Events example')
 # report.add_events(events=events, title='Events from "events"', sfreq=sfreq)
