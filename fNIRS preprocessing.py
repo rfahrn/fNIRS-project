@@ -48,16 +48,16 @@ def self_montage(file_path, csv_file):
                                              hsp=hsp, hpi=None, coord_frame='unknown')
 
 # 3D Animation using matplotlib
-def init():
-    """ initialize starting simulation """
-    fig.gca().view_init(azim=-65, elev=25)
-    return [fig]
+#def init():
+#    """ initialize starting simulation """
+    #    fig.gca().view_init(azim=-65, elev=25)
+    #return [fig]
 
 
-def animate(i):
-    """ helper function for steps of simulation, i steps """
-    fig.gca().view_init(azim=i, elev=25)
-    return [fig]
+#def animate(i):
+#    """ helper function for steps of simulation, i steps """
+#    fig.gca().view_init(azim=i, elev=25)
+#    return [fig]
 
 
 def montage_animation_channels(montage):
@@ -72,10 +72,10 @@ def montage_animation_channels(montage):
 
     # Animate
     writergif = animation.PillowWriter(fps=30)
-    anim = animation.FuncAnimation(fig, animate, init_func=init,
-                                   frames=360, interval=20, blit=True)
+    #anim = animation.FuncAnimation(fig, animate, init_func=init,
+    #                               frames=360, interval=20, blit=True)
     # Save
-    anim.save('Data/S34/basic_animation.gif', writer=writergif)
+    #anim.save('Data/S34/basic_animation.gif', writer=writergif)
 
 
 def return_montage(montage):
@@ -91,6 +91,7 @@ def more_raw_annotations(raw_intensity):
     # include information of duration of each stimulus 5 seconds for all conditions in experiment
     # raw_intensity.annotations.set_duration(5)  # 5 seconds for all conditions
     # TODO ask about how long each stimulus took for all conditions
+    raw_intensity.set_duration(20)
     raw_intensity.annotations.rename({1: 'Speech (Sp)',
                                       2: 'Rotated speech TS (Rot-TS)',
                                       3: 'Rotated speech Blesser (Rot-Blesser)',
@@ -99,13 +100,15 @@ def more_raw_annotations(raw_intensity):
 # ----------------------------------------------------------------------------------------------------------------------
 # test on first participant data: S01
 
+# raw1 = read_hitachi('Data/S01/S01_MES_Probe1.csv')
+# raw2 = read_hitachi('Data/S01/S01_MES_Probe2.csv')
 
-raw1 = read_hitachi('Data/S01/S01_MES_Probe1.csv')
-raw2 = read_hitachi('Data/S01/S01_MES_Probe2.csv')
+raw1 = read_hitachi('Data/S11/S11_MES_Probe1.csv')
+raw2 = read_hitachi('Data/S11/S11_MES_Probe2.csv')
 
+channel_names1 = raw1.info.ch_names
+channel_names2 = raw2.info.ch_names
 
-# channel_names = raw1.info.ch_names
-# print(channel_names)
 # ----------------------------------------------------------------------------------------------------------------------
 # set montage x,y,z coordinates Montage convert pos file using get_montage function
 
@@ -113,12 +116,12 @@ raw2 = read_hitachi('Data/S01/S01_MES_Probe2.csv')
 # raw1.set_montage(get_montage('Data/S01/probe1_channel_montage.csv'))
 # raw2.set_montage(get_montage('Data/S01/probe2_channel_montage.csv'))
 
-montage1_1 = self_montage(file_path='Data/S01/0001.pos', csv_file='Data/S01/probe1_channel_montage.csv')
-montage34_1 = self_montage(file_path='Data/S34/0001.pos', csv_file='Data/S34/probe1_channel_montage.csv')
-montage34_2 = self_montage(file_path='Data/S34/0001.pos', csv_file='Data/S34/probe2_channel_montage.csv')
-montage34 = self_montage(file_path='Data/S34/0001.pos', csv_file='Data/S34/0001_edit.csv')
-montage33 = self_montage(file_path='Data/S33/0001.pos', csv_file='Data/S33/0001_edit.csv')
-montage11 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/0001_edit.csv')
+# montage1_1 = self_montage(file_path='Data/S01/0001.pos', csv_file='Data/S01/probe1_channel_montage.csv')
+# montage34_1 = self_montage(file_path='Data/S34/0001.pos', csv_file='Data/S34/probe1_channel_montage.csv')
+# montage34_2 = self_montage(file_path='Data/S34/0001.pos', csv_file='Data/S34/probe2_channel_montage.csv')
+# montage34 = self_montage(file_path='Data/S34/0001.pos', csv_file='Data/S34/0001_edit.csv')
+# montage33 = self_montage(file_path='Data/S33/0001.pos', csv_file='Data/S33/0001_edit.csv')
+# montage11 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/0001_edit.csv')
 # raw2.set_montage(self_montage(file_path='Data/S01/0001.pos', csv_file= 'Data/S01/probe2_channel_montage.csv'))
 # plot  1 - 22 sensors for left hemisphere
 # fig1_1 = mne.viz.plot_montage(montage1_1, scale_factor=5, show_names=True, kind='topomap', sphere='auto', verbose=None)
@@ -127,11 +130,32 @@ montage11 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/0001_
 # fig34 = mne.viz.plot_montage(montage34, scale_factor=20, show_names=True, kind='3d', sphere='auto') # return figure object (matplotlib.figure.Figure)
 # fig34 = mne.viz.plot_montage(montage34, scale_factor=5, show_names=True, kind='3d')
 
-fig = return_montage(montage11).plot(kind='3d')
-fig.gca().view_init(azim=-70, elev=20)
-fig.savefig('Data/S11/fig.png')  # save_in_file(S34,fig.png)
+
+# fig = return_montage(montage11).plot(kind='3d') #matpltlib.figure.Figure
+
+# fig.gca().view_init(azim=-70, elev=20)
+
+# fig.savefig('Data/S11/fig.png')  # save_in_file(S34,fig.png)
+
+# raw1.set_montage(montage11_1,match_case=True,match_alias=True,on_missing='ignore')
 
 
+
+
+montage11 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/0001_edit.csv')
+
+# left hemisphere (Probe 1)
+montage11_1 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/probe1_channel_montage.csv')
+raw1.set_montage(montage11_1,match_case=True,match_alias=True,on_missing='ignore')
+
+# right hemisphere (Probe 2)
+montage11_2 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/probe2_channel_montage.csv')
+
+# mne.set_montage right hemisphere: raises Error - IndexError: index 44 is out of bounds for axis 0 with size 44
+raw2.set_montage(montage11_2)
+
+
+"""
 def init():
     fig.gca().view_init(azim=-65, elev=25)
     return [fig]
@@ -146,17 +170,17 @@ for angle in range(0, 360):
     fig.gca().view_init(angle, 25)
     plt.draw()
     plt.pause(.003)
-
+"""
 # plt.show()
 
 # Animate
-writergif = animation.PillowWriter(fps=30)
-anim = animation.FuncAnimation(fig, animate, init_func=init,
-                               frames=360, interval=20, blit=True)
+# writergif = animation.PillowWriter(fps=30)
+# anim = animation.FuncAnimation(fig, animate, init_func=init,
+#                               frames=360, interval=20, blit=True)
 # Save
 
-anim.save('Data/S11/basic_animation.gif', writer=writergif)
-montage33.plot(kind='topomap', show_names=False)
+# anim.save('Data/S11/basic_animation.gif', writer=writergif)
+# montage33.plot(kind='topomap', show_names=False)
 
 
 
@@ -195,6 +219,7 @@ events = mne.find_events(raw=raw1, initial_event=True)
 # ----------------------------------------------------------------------------------------------
 # print(mne.pick_types(raw2.info, meg=False, eeg=False, fnirs=True, exclude=[]))
 
+# ----------------------------------------------------------------------------------------------------------------------
 
 
 
