@@ -115,7 +115,11 @@ probe1.to_csv('Data/S33/probe1_channel_montage.csv', index=False, sep=',')
 probe2.to_csv('Data/S33/probe2_channel_montage.csv', index=False, sep=',')
 df.to_csv('Data/S33/0001_edit.csv', index=False, sep=',')
 
-"""
+
 probe1.to_csv('Data/S11/probe1_channel_montage.csv', index=False, sep=',')
 probe2.to_csv('Data/S11/probe2_channel_montage.csv', index=False, sep=',')
 df.to_csv('Data/S11/0001_edit.csv', index=False, sep=',')
+"""
+probe1.to_csv('Data/S31/probe1_channel_montage.csv', index=False, sep=',')
+probe2.to_csv('Data/S31/probe2_channel_montage.csv', index=False, sep=',')
+df.to_csv('Data/S31/0001_edit.csv', index=False, sep=',')
