@@ -68,7 +68,7 @@ def create_csv(read_filename, outfile):
 
 
 # test on participant S01
-os.makedirs('C:/Users/rebec/fNIRS-project/Data/S01', exist_ok=True)
+os.makedirs('C:/Users/rebec/fNIRS-project/Data/S11', exist_ok=True)
 
 # write .pos to .csv
 # create_csv('Data/S01/0001.pos', 'Data/S01/0001.csv')
@@ -90,7 +90,6 @@ new_names = 'S1 D1 S2 D2 S3 D3 S4 D4 S5 D5 S6 D6 S7 D7 S8 S9 D9 S10 D10 S11 D11 
 df.insert(0, 'ch_name', new_names)
 
 # rename
-
 # left hemisphere
 new_names_1 = 'S1 D1 S2 D2 S3 D3 S4 D4 S5 D5 S6 D6 S7 D7 S8'.split()
 
@@ -120,6 +119,6 @@ probe1.to_csv('Data/S11/probe1_channel_montage.csv', index=False, sep=',')
 probe2.to_csv('Data/S11/probe2_channel_montage.csv', index=False, sep=',')
 df.to_csv('Data/S11/0001_edit.csv', index=False, sep=',')
 """
-probe1.to_csv('Data/S31/probe1_channel_montage.csv', index=False, sep=',')
-probe2.to_csv('Data/S31/probe2_channel_montage.csv', index=False, sep=',')
-df.to_csv('Data/S31/0001_edit.csv', index=False, sep=',')
+probe1.to_csv('Data/S11/probe1_channel_montage.csv', index=False, sep=',')
+probe2.to_csv('Data/S11/probe2_channel_montage.csv', index=False, sep=',')
+df.to_csv('Data/S11/0001_edit.csv', index=False, sep=',')

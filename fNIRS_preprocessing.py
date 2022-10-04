@@ -94,7 +94,7 @@ def save_in_file(participant, new_name):
 
 def more_raw_annotations(raw_intensity):
     """Annotations for Raw intensity """
-    events = mne.find_events(raw1)
+    events = mne.find_events(raw)
     #dict_events = raw_intensity.annotations.rename(
     #    {                             1: 'Speech (Sp)',
     #                                  2: 'Rotated speech TS (Rot-TS)',
@@ -110,16 +110,19 @@ def more_raw_annotations(raw_intensity):
 # test on first participant data: S11 (no bad channels)
 
 # get raw-object
-raw1 = read_hitachi('Data/S11/S11_MES_Probe1.csv')
-raw2 = read_hitachi('Data/S11/S11_MES_Probe2.csv')
+# raw1 = read_hitachi('Data/S11/S11_MES_Probe1.csv')
+# raw2 = read_hitachi('Data/S11/S11_MES_Probe2.csv')
 
-raw1.copy().pick_types(fnirs=True, stim=True).plot(start=0, duration=20)
+
+raw = read_hitachi(['Data/S11/S11_MES_Probe1.csv', 'Data/S11/S11_MES_Probe2.csv'])
+
+#raw.copy().pick_types(fnirs=True, stim=True).plot(start=0, duration=20)
 
 # set montage # blue source: S / green decoder: D
 
 # left hemisphere (Probe 1)
-montage11_1 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S31/probe1_channel_montage.csv')
-raw1.set_montage(montage11_1,match_case=True,match_alias=True,on_missing='ignore')
+montage11 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/0001_edit.csv')
+raw.set_montage(montage11, match_case=True, match_alias=True, on_missing='ignore')
 
 # right hemisphere (Probe 2)
 # montage11_2 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/probe2_channel_montage.csv')
@@ -127,14 +130,14 @@ raw1.set_montage(montage11_1,match_case=True,match_alias=True,on_missing='ignore
 # mne.set_montage right hemisphere: raises Error - IndexError: index 44 is out of bounds for axis 0 with size 44
 # raw2.set_montage(montage11_2)
 
-raw1.load_data()
+# raw.load_data()
 
-mne.datasets.fetch_fsaverage(subjects_dir=None, verbose=True)
-brain = mne.viz.Brain('fsaverage', subjects_dir=None, background='white', cortex='0.5')
+#mne.datasets.fetch_fsaverage(subjects_dir=None, verbose=True)
+#brain = mne.viz.Brain('fsaverage', subjects_dir=None, background='white', cortex='0.5')
 # brain.add_sensors(raw1.info, trans='fsaverage', fnirs=['channels','sources', 'detectors'])
-brain.add_sensors(raw1.info, trans='fsaverage')
-brain.show_view(azimuth=20, elevation=90, distance=800)
-brain.save_image('[00-info]/templete_1.png')
+#brain.add_sensors(raw.info, trans='fsaverage')
+#brain.show_view(azimuth=20, elevation=90, distance=800)
+#brain.save_image('[00-info]/templete_1.png')
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -167,19 +170,13 @@ for angle in range(0, 360):
 
 # ---------------------------------------------------------------------------------------------
 
-raw1.annotations.rename(
-{'1.0': 'Speech (Sp)',
- '2.0': 'Rotated speech TS (Rot-TS)' ,
- '3.0': 'Rotated speech Blesser (Rot-Blesser)',
- '4.0':'Noise-vocoded speech (NV)',
- '5.0': 'rotated noise-vocoded speech (NV-Rot)'})
 
 
 # ---------------------------------------------------------------------------------------------
 
 # Converting from raw intensity to optical density
 
-raw_od = mne.preprocessing.nirs.optical_density(raw1)
+#raw_od = mne.preprocessing.nirs.optical_density(raw)
 
-raw_od.plot(n_channels=len(raw_od.ch_names),duration=500, show_scrollbars=False)
+#raw_od.plot(n_channels=len(raw_od.ch_names),duration=500, show_scrollbars=False)
 
