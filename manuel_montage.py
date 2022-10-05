@@ -59,7 +59,7 @@ def read_montage(filename):
                 z = z.lstrip('Z=')
                 list_content = [name, [float(x), float(y), float(z)]]
                 dic[list_content[0]] = list_content[1]
-                print(list_content)
+
 
         hsp = np.matrix((dic['Back'], dic['Top']))
         back = np.array(dic['Back'])

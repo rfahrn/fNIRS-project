@@ -110,34 +110,29 @@ def more_raw_annotations(raw_intensity):
 # test on first participant data: S11 (no bad channels)
 
 # get raw-object
-# raw1 = read_hitachi('Data/S11/S11_MES_Probe1.csv')
+raw1 = read_hitachi('Data/S11/S11_MES_Probe1.csv')
 # raw2 = read_hitachi('Data/S11/S11_MES_Probe2.csv')
 
 
-raw = read_hitachi(['Data/S11/S11_MES_Probe1.csv', 'Data/S11/S11_MES_Probe2.csv'])
+# raw = read_hitachi(['Data/S11/S11_MES_Probe1.csv', 'Data/S11/S11_MES_Probe2.csv'])
 
-#raw.copy().pick_types(fnirs=True, stim=True).plot(start=0, duration=20)
+raw1.copy().pick_types(fnirs=True, stim=True).plot(start=0, duration=20)
 
-# set montage # blue source: S / green decoder: D
 
-# left hemisphere (Probe 1)
-montage11 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/0001_edit.csv')
-raw.set_montage(montage11, match_case=True, match_alias=True, on_missing='ignore')
+# montage11 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/0001_edit.csv')
+montage11_1 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/probe1_channel_montage.csv')
+raw1.set_montage(montage11_1)
 
-# right hemisphere (Probe 2)
-# montage11_2 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/probe2_channel_montage.csv')
+fig = mne.viz.plot_sensors(raw1.info, kind='3d')
+fig.savefig('Data/S11/my_figure.png')
 
-# mne.set_montage right hemisphere: raises Error - IndexError: index 44 is out of bounds for axis 0 with size 44
-# raw2.set_montage(montage11_2)
+raw1.load_data()
+mne.datasets.fetch_fsaverage(subjects_dir=None, verbose=True)
+brain = mne.viz.Brain('fsaverage', subjects_dir=None, background='white', cortex='0.5')
+brain.add_sensors(raw1.info, trans='fsaverage', fnirs=['channels','pairs','sources', 'detectors'])
 
-# raw.load_data()
-
-#mne.datasets.fetch_fsaverage(subjects_dir=None, verbose=True)
-#brain = mne.viz.Brain('fsaverage', subjects_dir=None, background='white', cortex='0.5')
-# brain.add_sensors(raw1.info, trans='fsaverage', fnirs=['channels','sources', 'detectors'])
-#brain.add_sensors(raw.info, trans='fsaverage')
-#brain.show_view(azimuth=20, elevation=90, distance=800)
-#brain.save_image('[00-info]/templete_1.png')
+brain.show_view(azimuth=20, elevation=90, distance=800)
+brain.save_image('Data/S11/sensors.png')
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -169,7 +164,9 @@ for angle in range(0, 360):
 
 
 # ---------------------------------------------------------------------------------------------
-
+# ['D1', 'D10', 'D11', 'D12', 'D13', 'D14', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7',
+#  'D8', 'D9', 'S1', 'S10', 'S11', 'S12', 'S13', 'S14', 'S15', 'S16', 'S2', 'S3',
+#  'S4', 'S5', 'S6', 'S7', 'S8', 'S9']
 
 
 # ---------------------------------------------------------------------------------------------

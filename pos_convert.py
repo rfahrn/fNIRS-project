@@ -86,7 +86,22 @@ probe1 = df[df['ch_name'].str.startswith('Probe1')]
 probe2 = df[df['ch_name'].str.startswith('Probe2')]
 
 df.drop('ch_name', axis=1, inplace=True)
-new_names = 'S1 D1 S2 D2 S3 D3 S4 D4 S5 D5 S6 D6 S7 D7 S8 S9 D9 S10 D10 S11 D11 S12 D12 S13 D13 S14 D14 S15 D15 S16'.split()
+
+new_names = ['S1', 'D1',
+             'S2', 'D2',
+             'S3', 'D3',
+             'S4', 'D4',
+             'S5', 'D5',
+             'S6', 'D6',
+             'S7', 'D7',
+             'S8', 'D8',
+             'S9', 'D9',
+             'S10', 'D10',
+             'S11', 'D11',
+             'S12', 'D12',
+             'S13', 'D13',
+             'S14', 'D14',
+             'S15','S16']
 df.insert(0, 'ch_name', new_names)
 
 # rename
@@ -94,7 +109,14 @@ df.insert(0, 'ch_name', new_names)
 new_names_1 = 'S1 D1 S2 D2 S3 D3 S4 D4 S5 D5 S6 D6 S7 D7 S8'.split()
 
 # right hemisphere
-new_names_2 = 'S9 D9 S10 D10 S11 D11 S12 D12 S13 D13 S14 D14 S15 D15 S16'.split()
+new_names_2 = ['D8',
+               'S9', 'D9',
+             'S10', 'D10',
+             'S11', 'D11',
+             'S12', 'D12',
+              'S13', 'D13',
+              'S14', 'D14',
+              'S15','S16']
 
 probe1.drop('ch_name', axis=1, inplace=True)
 probe2.drop('ch_name', axis=1, inplace=True)
