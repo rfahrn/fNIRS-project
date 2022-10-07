@@ -51,12 +51,12 @@ def read_montage(filename):
                 elif name == 'Nasion':
                     name = 'nasion'
 
-                x = content[0]
-                x = x.lstrip('X=')
-                y = content[1]
-                y = y.lstrip('Y=')
-                z = content[2]
-                z = z.lstrip('Z=')
+                x = content[0] 
+                x = float(x.lstrip('X=')) /1000
+                y = content[1] 
+                y = float(y.lstrip('Y=')) /1000
+                z = content[2] 
+                z = float(z.lstrip('Z=')) /1000
                 list_content = [name, [float(x), float(y), float(z)]]
                 dic[list_content[0]] = list_content[1]
 

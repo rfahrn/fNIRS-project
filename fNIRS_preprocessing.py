@@ -2,7 +2,10 @@
 # Project: fNIRS data analysis
 # using MNE-python https://mne.tools/stable/index.html
 
-import mne
+import sys
+sys.path.append('C:/Users/rebec/fNIRS-project/manuel_montage.py')      
+       
+import mne 
 from matplotlib import animation
 import manuel_montage
 import os.path as op
@@ -46,7 +49,7 @@ def self_montage(file_path, csv_file):
     lpa, rpa, nasion, hsp, coord_frame = manuel_montage.read_montage(file_path)
     ch_pos = manuel_montage.convert_to_dic(csv_file)
     return mne.channels.make_dig_montage(ch_pos=ch_pos, nasion=nasion, lpa=lpa, rpa=rpa,
-                                             hsp=hsp, hpi=None, coord_frame='unknown')
+                                             hsp=hsp, hpi=None, coord_frame='mri')
 
 
 # 3D Animation using matplotlib
@@ -92,47 +95,68 @@ def save_in_file(participant, new_name):
     return 'Data/' + str(participant) + '/' + str(new_name)
 
 
-def more_raw_annotations(raw_intensity):
+def more_raw_annotations(raw):
     """Annotations for Raw intensity """
     events = mne.find_events(raw)
-    #dict_events = raw_intensity.annotations.rename(
-    #    {                             1: 'Speech (Sp)',
-    #                                  2: 'Rotated speech TS (Rot-TS)',
-    #                                  3: 'Rotated speech Blesser (Rot-Blesser)',
-    #                                  4:'Noise-vocoded speech (NV)',
-    #                                 5: 'rotated noise-vocoded speech (NV-Rot)'})
-    #print(raw1.annotations)
-    #annot_from_events = mne.annotations_from_events( events=events, event_desc=dict_events, sfreq=raw1.info['sfreq'],
-        #orig_time=raw1.info['meas_date'])
-    #raw1.set_annotations(annot_from_events)
+    event_dict  =  {'(Sp)':1,
+     '(Rot-TS)':2 ,
+     '(Rot-Blesser)':3,
+     '(NV)':4,
+     ' (NV-Rot)':5}
+    fig = mne.viz.plot_events(events, sfreq=raw.info['sfreq'],
+                              first_samp=raw.first_samp, event_id=event_dict)
+    fig.subplots_adjust(right=0.7)  # make room for legend
+    raw.plot(events=events, start=5, duration=20, color='gray',
+         event_color={1: 'r', 2: 'g', 3: 'b', 4: 'm', 5: 'y'})
 
 # ----------------------------------------------------------------------------------------------------------------------
 # test on first participant data: S11 (no bad channels)
 
 # get raw-object
-raw1 = read_hitachi('Data/S11/S11_MES_Probe1.csv')
-# raw2 = read_hitachi('Data/S11/S11_MES_Probe2.csv')
+raw1 = read_hitachi('Data/S11/S11_MES_Probe1.csv') # only left hemisphere
+# raw2 = read_hitachi('Data/S11/S11_MES_Probe2.csv') # only right hemisphere
+# raw = read_hitachi(['Data/S11/S11_MES_Probe1.csv', 'Data/S11/S11_MES_Probe2.csv']) # both hemis.
 
 
-# raw = read_hitachi(['Data/S11/S11_MES_Probe1.csv', 'Data/S11/S11_MES_Probe2.csv'])
+# montage11 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/0001_edit.csv') # both hemis.
+montage11_1 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/probe1_channel_montage.csv') # only left hemisphere
 
-raw1.copy().pick_types(fnirs=True, stim=True).plot(start=0, duration=20)
+raw1.set_montage(montage11_1) # both hemis.
 
-
-# montage11 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/0001_edit.csv')
-montage11_1 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/probe1_channel_montage.csv')
-raw1.set_montage(montage11_1)
-
-fig = mne.viz.plot_sensors(raw1.info, kind='3d')
-fig.savefig('Data/S11/my_figure.png')
+# fig = mne.viz.plot_sensors(raw1.info, kind='3d')
+#fig.savefig('Data/S11/sensors_3d.png')  # looks fine
 
 raw1.load_data()
+
+events = mne.find_events(raw1)
+event_dict  =  {'(Sp)':1,
+     '(Rot-TS)':2 ,
+     '(Rot-Blesser)':3,
+     '(NV)':4,
+     ' (NV-Rot)':5}
+
+
+epochs = mne.Epochs(raw1, events, tmin=-0.3, tmax=10, event_id=event_dict)
+print(events)
+event_desc = {v: k for k, v in event_dict.items()}
+mne.annotations_from_events(events=events,sfreq=raw1.info['sfreq'],event_desc=event_desc)
+#epochs.plot(n_epochs=10)
+picks = mne.pick_types(raw1.info, meg=False, fnirs=True)
+dists = mne.preprocessing.nirs.source_detector_distances(
+    raw1.info, picks=picks)
+raw1.pick(picks[dists > 0.01])
+raw1.plot(n_channels=len(raw1.ch_names),
+                   duration=5000, show_scrollbars=False)
+
+
 mne.datasets.fetch_fsaverage(subjects_dir=None, verbose=True)
-brain = mne.viz.Brain('fsaverage', subjects_dir=None, background='white', cortex='0.5')
+brain = mne.viz.Brain('fsaverage', subjects_dir=None, background='white', cortex='0.7')
 brain.add_sensors(raw1.info, trans='fsaverage', fnirs=['channels','pairs','sources', 'detectors'])
 
 brain.show_view(azimuth=20, elevation=90, distance=800)
-brain.save_image('Data/S11/sensors.png')
+brain.save_image('Data/S11/sensors_left.png')
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -164,9 +188,54 @@ for angle in range(0, 360):
 
 
 # ---------------------------------------------------------------------------------------------
-# ['D1', 'D10', 'D11', 'D12', 'D13', 'D14', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7',
-#  'D8', 'D9', 'S1', 'S10', 'S11', 'S12', 'S13', 'S14', 'S15', 'S16', 'S2', 'S3',
-#  'S4', 'S5', 'S6', 'S7', 'S8', 'S9']
+# plot 
+
+#raw1.plot(n_channels=len(raw1.ch_names),
+                   #duration=5000, show_scrollbars=False)
+
+# converting raw to optical density
+raw_od = mne.preprocessing.nirs.optical_density(raw1)
+#raw_od.plot(n_channels=len(raw_od.ch_names),
+#            duration=5000, show_scrollbars=False)
+
+# evaluate quality of data
+sci = mne.preprocessing.nirs.scalp_coupling_index(raw_od)
+fig, ax = plt.subplots()
+ax.hist(sci)
+ax.set(xlabel='Scalp Coupling Index', ylabel='Count', xlim=[0, 1])
+# set bads
+raw_od.info['bads'] = list(compress(raw_od.ch_names, sci < 0.5))
+
+# converting optical density to haemoglobin 
+raw_haemo = mne.preprocessing.nirs.beer_lambert_law(raw_od, ppf=0.57)
+raw_haemo.plot(n_channels=len(raw_haemo.ch_names),
+               duration=500, show_scrollbars=False)
+       
+
+# removing heart rate 
+#fig = raw_haemo.plot_psd(average=True)
+#fig.suptitle('Before filtering', weight='bold', size='x-large')
+#fig.subplots_adjust(top=0.88)
+#raw_haemo = raw_haemo.filter(0.05, 0.7, h_trans_bandwidth=0.2,
+#                             l_trans_bandwidth=0.02)
+#fig = raw_haemo.plot_psd(average=True)
+#fig.suptitle('After filtering', weight='bold', size='x-large')
+#fig.subplots_adjust(top=0.88)
+       
+
+
+fig = mne.viz.plot_events(events, event_id=event_dict,
+                          sfreq=raw_haemo.info['sfreq'])
+fig.subplots_adjust(right=0.7)  # make room for the legend
+
+reject_criteria = dict(hbo=80e-6)
+tmin, tmax = -5, 15
+
+epochs = mne.Epochs(raw_haemo, events, event_id=event_dict,
+                    tmin=tmin, tmax=tmax,
+                    reject=reject_criteria, reject_by_annotation=True,
+                    proj=True, baseline=(None, 0), preload=True,
+                    detrend=None, verbose=True)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -176,4 +245,3 @@ for angle in range(0, 360):
 #raw_od = mne.preprocessing.nirs.optical_density(raw)
 
 #raw_od.plot(n_channels=len(raw_od.ch_names),duration=500, show_scrollbars=False)
-
