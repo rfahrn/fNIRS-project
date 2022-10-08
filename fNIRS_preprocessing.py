@@ -3,14 +3,12 @@
 # using MNE-python https://mne.tools/stable/index.html
 
 import sys
-sys.path.append('C:/Users/rebec/fNIRS-project/manuel_montage.py')      
-       
+sys.path.append('C:/Users/rebec/fNIRS-project/manuel_montage.py')
 import mne 
 from matplotlib import animation
 import manuel_montage
 import os.path as op
 import numpy as np
-import mne_nirs
 import matplotlib.pyplot as plt
 from itertools import compress
 from matplotlib.cm import ScalarMappable
@@ -48,8 +46,12 @@ def self_montage(file_path, csv_file):
     """
     lpa, rpa, nasion, hsp, coord_frame = manuel_montage.read_montage(file_path)
     ch_pos = manuel_montage.convert_to_dic(csv_file)
-    return mne.channels.make_dig_montage(ch_pos=ch_pos, nasion=nasion, lpa=lpa, rpa=rpa,
-                                             hsp=hsp, hpi=None, coord_frame='mri')
+    return mne.channels.make_dig_montage(ch_pos=ch_pos,
+                                         nasion=nasion,
+                                         lpa=lpa, rpa=rpa,
+                                         hsp=hsp,
+                                         hpi=None,
+                                         coord_frame='mri')
 
 
 # 3D Animation using matplotlib
@@ -58,10 +60,10 @@ def self_montage(file_path, csv_file):
 # def init():
 #    """ initialize starting simulation """
     #    fig.gca().view_init(azim=-65, elev=25)
-    #return [fig]
+    # return [fig]
 
 
-#def animate(i):
+# def animate(i):
 #    """ helper function for steps of simulation, i steps """
 #    fig.gca().view_init(azim=i, elev=25)
 #    return [fig]
@@ -69,20 +71,20 @@ def self_montage(file_path, csv_file):
 
 def montage_animation_channels(montage):
     """ Animation of a montage using only channels """
-    fig = montage.plot(kind='3d')
-    fig.gca().view_init(azim=-65, elev=25)
-    fig.savefig('Data/S34/fig.png')  # save montage as a png file
+    fig_ = montage.plot(kind='3d')
+    fig_.gca().view_init(azim=-65, elev=25)
+    fig_.savefig('Data/S34/fig.png')  # save montage as a png file
     for angle in range(0, 360):
-        fig.gca().view_init(angle, 25)
+        fig_.gca().view_init(angle, 25)
         plt.draw()
         plt.pause(.003)
 
     # Animate
-    writergif = animation.PillowWriter(fps=30)
-    #anim = animation.FuncAnimation(fig, animate, init_func=init,
+    # writergif = animation.PillowWriter(fps=30)
+    # anim = animation.FuncAnimation(fig, animate, init_func=init,
     #                               frames=360, interval=20, blit=True)
     # Save
-    #anim.save('Data/S34/basic_animation.gif', writer=writergif)
+    # anim.save('Data/S34/basic_animation.gif', writer=writergif)
 
 
 def return_montage(montage):
@@ -97,34 +99,45 @@ def save_in_file(participant, new_name):
 
 def more_raw_annotations(raw):
     """Annotations for Raw intensity """
-    events = mne.find_events(raw)
-    event_dict  =  {'(Sp)':1,
-     '(Rot-TS)':2 ,
-     '(Rot-Blesser)':3,
-     '(NV)':4,
-     ' (NV-Rot)':5}
-    fig = mne.viz.plot_events(events, sfreq=raw.info['sfreq'],
-                              first_samp=raw.first_samp, event_id=event_dict)
+    events_ = mne.find_events(raw)
+    event_dict_ = {
+        '(Sp)': 1,
+        '(Rot-TS)': 2,
+        '(Rot-Blesser)': 3,
+        '(NV)': 4,
+        '(NV-Rot)': 5
+    }
+    fig = mne.viz.plot_events(events_,
+                              sfreq=raw.info['sfreq'],
+                              first_samp=raw.first_samp,
+                              event_id=event_dict_)
+
     fig.subplots_adjust(right=0.7)  # make room for legend
-    raw.plot(events=events, start=5, duration=20, color='gray',
-         event_color={1: 'r', 2: 'g', 3: 'b', 4: 'm', 5: 'y'})
+
+    raw.plot(events=events_,
+             start=5,
+             duration=20,
+             color='gray',
+             event_color={1: 'r', 2: 'g', 3: 'b', 4: 'm', 5: 'y'})
 
 # ----------------------------------------------------------------------------------------------------------------------
 # test on first participant data: S11 (no bad channels)
 
 # get raw-object
-raw1 = read_hitachi('Data/S11/S11_MES_Probe1.csv') # only left hemisphere
+
+
+raw1 = read_hitachi('Data/S11/S11_MES_Probe1.csv')  # only left hemisphere
 # raw2 = read_hitachi('Data/S11/S11_MES_Probe2.csv') # only right hemisphere
 # raw = read_hitachi(['Data/S11/S11_MES_Probe1.csv', 'Data/S11/S11_MES_Probe2.csv']) # both hemis.
 
 
 # montage11 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/0001_edit.csv') # both hemis.
-montage11_1 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/probe1_channel_montage.csv') # only left hemisphere
+montage11_1 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/probe1_channel_montage.csv') # only left
 
-raw1.set_montage(montage11_1) # both hemis.
+raw1.set_montage(montage11_1)  # both hemis.
 
 # fig = mne.viz.plot_sensors(raw1.info, kind='3d')
-#fig.savefig('Data/S11/sensors_3d.png')  # looks fine
+# fig.savefig('Data/S11/sensors_3d.png')  # looks fine
 
 raw1.load_data()
 
@@ -140,14 +153,13 @@ epochs = mne.Epochs(raw1, events, tmin=-0.3, tmax=10, event_id=event_dict)
 print(events)
 event_desc = {v: k for k, v in event_dict.items()}
 mne.annotations_from_events(events=events,sfreq=raw1.info['sfreq'],event_desc=event_desc)
-#epochs.plot(n_epochs=10)
+# epochs.plot(n_epochs=10)
 picks = mne.pick_types(raw1.info, meg=False, fnirs=True)
 dists = mne.preprocessing.nirs.source_detector_distances(
     raw1.info, picks=picks)
 raw1.pick(picks[dists > 0.01])
 raw1.plot(n_channels=len(raw1.ch_names),
-                   duration=5000, show_scrollbars=False)
-
+          duration=5000, show_scrollbars=False)
 
 mne.datasets.fetch_fsaverage(subjects_dir=None, verbose=True)
 brain = mne.viz.Brain('fsaverage', subjects_dir=None, background='white', cortex='0.7')
@@ -190,13 +202,11 @@ for angle in range(0, 360):
 # ---------------------------------------------------------------------------------------------
 # plot 
 
-#raw1.plot(n_channels=len(raw1.ch_names),
-                   #duration=5000, show_scrollbars=False)
+# raw1.plot(n_channels=len(raw1.ch_names), duration=5000, show_scrollbars=False)
 
 # converting raw to optical density
 raw_od = mne.preprocessing.nirs.optical_density(raw1)
-#raw_od.plot(n_channels=len(raw_od.ch_names),
-#            duration=5000, show_scrollbars=False)
+# raw_od.plot(n_channels=len(raw_od.ch_names), duration=5000, show_scrollbars=False)
 
 # evaluate quality of data
 sci = mne.preprocessing.nirs.scalp_coupling_index(raw_od)
@@ -224,7 +234,8 @@ raw_haemo.plot(n_channels=len(raw_haemo.ch_names),
        
 
 
-fig = mne.viz.plot_events(events, event_id=event_dict,
+fig = mne.viz.plot_events(events,
+                          event_id=event_dict,
                           sfreq=raw_haemo.info['sfreq'])
 fig.subplots_adjust(right=0.7)  # make room for the legend
 
@@ -242,6 +253,6 @@ epochs = mne.Epochs(raw_haemo, events, event_id=event_dict,
 
 # Converting from raw intensity to optical density
 
-#raw_od = mne.preprocessing.nirs.optical_density(raw)
+# raw_od = mne.preprocessing.nirs.optical_density(raw)
 
-#raw_od.plot(n_channels=len(raw_od.ch_names),duration=500, show_scrollbars=False)
+# raw_od.plot(n_channels=len(raw_od.ch_names),duration=500, show_scrollbars=False)

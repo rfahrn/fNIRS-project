@@ -1,3 +1,4 @@
+
 # Author: Rebecka Fahrni, 18-735-522
 # Project: fNIRS data analysis
 # using MNE-python https://mne.tools/stable/index.html
@@ -10,7 +11,7 @@ import matplotlib.pyplot as plt
 from itertools import compress
 import mne
 
-# Preprocessing of fNIRS
+# Preprocessing of fNIRS - Individual analysis
 # -----------------------------------------------------------------------------
 
 
