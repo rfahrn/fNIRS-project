@@ -40,10 +40,10 @@ def self_montage(file_path, csv_file):
 
 
 # read Hitachi data
-raw = read_hitachi(['Data/S11/S11_MES_Probe1.csv', 'Data/S11/S11_MES_Probe2.csv'])
+raw = read_hitachi(['C:/Users/rebec/fNIRS-project/Data/S11/S11_MES_Probe1.csv', 'C:/Users/rebec/fNIRS-project/Data/S11/S11_MES_Probe2.csv'])
 
 # set Montage
-montage11 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/0001_edit.csv')
+montage11 = self_montage(file_path='C:/Users/rebec/fNIRS-project/Data/S11/0001.pos', csv_file='C:/Users/rebec/fNIRS-project/Data/S11/0001_edit.csv')
 raw.set_montage(montage11)
 
 # load Data
@@ -96,9 +96,9 @@ raw_od.plot(n_channels=len(raw_od.ch_names),
 # the frequency range of cardiac signals across both photodetected signals
 
 sci = mne.preprocessing.nirs.scalp_coupling_index(raw_od)
-# fig, ax = plt.subplots()
-# ax.hist(sci)
-# ax.set(xlabel='Scalp Coupling Index', ylabel='Count', xlim=[0, 1])
+fig, ax = plt.subplots()
+ax.hist(sci)
+ax.set(xlabel='Scalp Coupling Index', ylabel='Count', xlim=[0, 1])
 
 # set SCI less than 0.5 as bad channel!
 raw_od.info['bads'] = list(compress(raw_od.ch_names, sci < 0.5))

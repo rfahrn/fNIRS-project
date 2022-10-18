@@ -126,22 +126,22 @@ def more_raw_annotations(raw):
 # get raw-object
 
 
-raw1 = read_hitachi('Data/S11/S11_MES_Probe1.csv')  # only left hemisphere
+#raw1 = read_hitachi('Data/S11/S11_MES_Probe1.csv')  # only left hemisphere
 # raw2 = read_hitachi('Data/S11/S11_MES_Probe2.csv') # only right hemisphere
-# raw = read_hitachi(['Data/S11/S11_MES_Probe1.csv', 'Data/S11/S11_MES_Probe2.csv']) # both hemis.
+raw = read_hitachi(['C:/Users/rebec/fNIRS-project/Data/S11/S11_MES_Probe1.csv', 'C:/Users/rebec/fNIRS-project/Data/S11/S11_MES_Probe2.csv']) # both hemis.
 
 
-# montage11 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/0001_edit.csv') # both hemis.
-montage11_1 = self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/probe1_channel_montage.csv') # only left
+montage11 = self_montage(file_path='C:/Users/rebec/fNIRS-project/Data/S11/0001.pos', csv_file='C:/Users/rebec/fNIRS-project/Data/S11/0001_edit.csv') # both hemis.
+#montage11_1 = self_montage(file_path='Data/S11/0001.pos', csv_file='C:/Users/rebec/fNIRS-project/Data/S11/probe1_channel_montage.csv') # only left
 
-raw1.set_montage(montage11_1)  # both hemis.
+raw.set_montage(montage11)  # both hemis.
 
 # fig = mne.viz.plot_sensors(raw1.info, kind='3d')
 # fig.savefig('Data/S11/sensors_3d.png')  # looks fine
 
-raw1.load_data()
+raw.load_data()
 
-events = mne.find_events(raw1)
+events = mne.find_events(raw)
 event_dict  =  {'(Sp)':1,
      '(Rot-TS)':2 ,
      '(Rot-Blesser)':3,
@@ -149,24 +149,24 @@ event_dict  =  {'(Sp)':1,
      ' (NV-Rot)':5}
 
 
-epochs = mne.Epochs(raw1, events, tmin=-0.3, tmax=10, event_id=event_dict)
+epochs = mne.Epochs(raw, events, tmin=-0.3, tmax=10, event_id=event_dict)
 print(events)
 event_desc = {v: k for k, v in event_dict.items()}
-mne.annotations_from_events(events=events,sfreq=raw1.info['sfreq'],event_desc=event_desc)
+mne.annotations_from_events(events=events,sfreq=raw.info['sfreq'],event_desc=event_desc)
 # epochs.plot(n_epochs=10)
-picks = mne.pick_types(raw1.info, meg=False, fnirs=True)
+picks = mne.pick_types(raw.info, meg=False, fnirs=True)
 dists = mne.preprocessing.nirs.source_detector_distances(
-    raw1.info, picks=picks)
-raw1.pick(picks[dists > 0.01])
-raw1.plot(n_channels=len(raw1.ch_names),
+    raw.info, picks=picks)
+raw.pick(picks[dists > 0.01])
+raw.plot(n_channels=len(raw.ch_names),
           duration=5000, show_scrollbars=False)
 
 mne.datasets.fetch_fsaverage(subjects_dir=None, verbose=True)
 brain = mne.viz.Brain('fsaverage', subjects_dir=None, background='white', cortex='0.7')
-brain.add_sensors(raw1.info, trans='fsaverage', fnirs=['channels','pairs','sources', 'detectors'])
+brain.add_sensors(raw.info, trans='fsaverage', fnirs=['channels','pairs','sources', 'detectors'])
 
 brain.show_view(azimuth=20, elevation=90, distance=800)
-brain.save_image('Data/S11/sensors_left.png')
+brain.save_image('C:/Users/rebec/fNIRS-project/Data/S11/sensors.png')
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -205,7 +205,7 @@ for angle in range(0, 360):
 # raw1.plot(n_channels=len(raw1.ch_names), duration=5000, show_scrollbars=False)
 
 # converting raw to optical density
-raw_od = mne.preprocessing.nirs.optical_density(raw1)
+raw_od = mne.preprocessing.nirs.optical_density(raw)
 # raw_od.plot(n_channels=len(raw_od.ch_names), duration=5000, show_scrollbars=False)
 
 # evaluate quality of data

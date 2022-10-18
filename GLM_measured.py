@@ -13,14 +13,14 @@ from mne_nirs.channels import (get_long_channels,
 from nilearn.plotting import plot_design_matrix
 import sys
 sys.path.append('C:/Users/rebec/fNIRS-project/manuel_montage.py') 
-sys.path.append('C:/Users/rebec/fNIRS-project/untitled0.py') 
-import manuel_montage, untitled0
+
+import manuel_montage, Preprocessing_individual
 
 
-raw = untitled0.read_hitachi(['Data/S11/S11_MES_Probe1.csv', 'Data/S11/S11_MES_Probe2.csv']).load_data()
+raw = Preprocessing_individual.read_hitachi(['C:/Users/rebec/fNIRS-project/Data/S11/S11_MES_Probe1.csv', 'C:/Users/rebec/fNIRS-project/Data/S11/S11_MES_Probe2.csv']).load_data()
 
 # set Montage 
-montage11 = untitled0.self_montage(file_path='Data/S11/0001.pos', csv_file='Data/S11/0001_edit.csv') 
+montage11 = Preprocessing_individual.self_montage(file_path='C:/Users/rebec/fNIRS-project/Data/S11/0001.pos', csv_file='C:/Users/rebec/fNIRS-project/Data/S11/0001_edit.csv') 
 raw.set_montage(montage11) 
 
 
@@ -63,10 +63,11 @@ plt.legend(["Sp", "Rot-TS", "Rot-Blesser", "NV", "NV-Rot"], loc="upper right")
 plt.xlabel("Time (s)")
 
 # ------------------------------------------------------------------------------
-# create design matrix
+# create design matrix using SPM
 
 # We model the expected neural response for each experimental condition using 
-# the SPM haemodynamic response function (HRF) combined with the known stimulus #
+# SPM (statistical parametric mapping)
+# haemodynamic response function (HRF) combined with the known stimulus #
 # event times and durations (as described above). We also include a cosine 
 # drift model with components up to the high pass parameter value. See the 
 # nilearn documentation for recommendations on setting these values. In short, 
@@ -98,7 +99,7 @@ fig = plot_design_matrix(design_matrix, ax=ax1)
 
 # -----------------------------------------------------------------------------
 # Examine expected response 
-
+"""
 s = mne_nirs.experimental_design.create_boxcar(raw, stim_dur=5.0)
 plt.plot(raw.times, s[:, 1])
 plt.plot(design_matrix["Sp"])
@@ -106,7 +107,7 @@ plt.xlim(180, 2000)
 plt.legend(["Stimulus", "Expected Response"])
 plt.xlabel("Time (s)")
 plt.ylabel("Amplitude")
-
+"""
 # -------------------------------------------------------------------------------
 # Fit GLM to subset of data and estimate response for each experimental condition
 
@@ -170,6 +171,9 @@ print(df.head(6))
 # 3	Rotated speech Blesser (Rot-Blesser)
 # 4	Noise-vocoded speech (NV)
 # 5	Rotated noise-vocoded speech (NV-Rot)
+
+
+
 
 # CONTRASTS USED in SCOTT EL Al. (2000)
 
