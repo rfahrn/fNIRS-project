@@ -5,6 +5,7 @@ import csv
 import pandas as pd
 import os
 
+
 def create_csv(read_filename, outfile):
     """
     Creates a .csv file out of .pos data, output csv:  4 columns containing ch_name, x, y, and z.
@@ -89,14 +90,13 @@ def create_0001_edit(number):
     probe1 = df[df['ch_name'].str.startswith('Probe1')]  # left
     probe2 = df[df['ch_name'].str.startswith('Probe2')]
 
-
     # rename
     # left hemisphere
     new_names_1 = 'S1 D1 S2 D2 S3 D3 S4 D4 S5 D5 S6 D6 S7 D7 S8'.split()
 
     # right hemisphere
 
-    new_names_2 = ['S9', 'D8','S10', 'D9','S11', 'D10','S12', 'D11','S13', 'D12','S14', 'D13','S15', 'D14','S16']
+    new_names_2 = ['S9', 'D8', 'S10', 'D9', 'S11', 'D10', 'S12', 'D11', 'S13', 'D12', 'S14', 'D13', 'S15', 'D14', 'S16']
 
     # new_names_2 = 'S11 D10 S10 D9 S9 D13 S13 D12 S12 D11 S16 D15 S15 D14 S14'.split()
     new_names = new_names_1 + new_names_2
@@ -114,8 +114,9 @@ def create_0001_edit(number):
     df.to_csv('Data/S' + str(number) + '/0001_edit.csv', index=False, sep=',')
     return
 
-# list of number of participants ( all existing subfolders ) in Data
-number = ['01', '04', '05', '06', '07', '08', '09', 11, 12, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 37]
 
-for n in number:
+# list of number of participants ( all existing subfolders ) in Data
+list_folders = ['01', '04', '05', '06', '07', '08', '09', 11, 12, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 37]
+
+for n in list_folders:
     create_0001_edit(n)
