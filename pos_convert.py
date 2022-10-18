@@ -1,12 +1,13 @@
+# Author: Rebecka Fahrni
+# Script to convert .pos file into csv file
+
 import csv
 import pandas as pd
 import os
 
-# output csv:  4 columns containing ch_name, x, y, and z.
-
 def create_csv(read_filename, outfile):
     """
-    Creates a .csv file out of .pos data
+    Creates a .csv file out of .pos data, output csv:  4 columns containing ch_name, x, y, and z.
     :param read_filename: input file path that gets read
     :param outfile: path to which the output gets written
     :return: None (just creates an output-file)
@@ -66,85 +67,13 @@ def create_csv(read_filename, outfile):
     df.to_csv(outfile, index=False, sep=',')  # restructure
     return
 
-"""
-# test on participant S01
-os.makedirs('C:/Users/rebec/fNIRS-project/Data', exist_ok=True)
-
-# write .pos to .csv
-create_csv('Data/S11/0001.pos', 'Data/S11/0001.csv')
-
-# read .csv file with columns: ch_name,x,y,z and create a dataframe
-df = pd.read_csv('Data/S11/0001.csv')
-
-
-# segmentation of Probe1 and Probe2 to new .csv files
-probe1 = df[df['ch_name'].str.startswith('Probe1')] # left 
-probe2 = df[df['ch_name'].str.startswith('Probe2')]
-
-df.drop('ch_name', axis=1, inplace=True)
-
-new_names = ['S1', 'D1',
-             'S2', 'D2',
-             'S3', 'D3',
-             'S4', 'D4',
-             'S5', 'D5',
-             'S6', 'D6',
-             'S7', 'D7',
-             'S8', 'D8',
-             'S9', 'D9',
-             'S10', 'D10',
-             'S11', 'D11',
-             'S12', 'D12',
-             'S13', 'D13',
-             'S14', 'D14',
-             'S15','S16']
-df.insert(0, 'ch_name', new_names)
-
-# rename
-# left hemisphere
-new_names_1 = 'S1 D1 S2 D2 S3 D3 S4 D4 S5 D5 S6 D6 S7 D7 S8'.split()
-
-# right hemisphere
-new_names_2 = ['S9', 'D8',
-             'S10', 'D9',
-             'S11', 'D10',
-             'S12', 'D11',
-              'S13', 'D12',
-              'S14', 'D13',
-              'S15', 'D14',
-              'S16']
-
-
-probe1.drop('ch_name', axis=1, inplace=True)
-probe2.drop('ch_name', axis=1, inplace=True)
-probe1.insert(0, 'ch_name', new_names_1)
-probe2.insert(0, 'ch_name', new_names_2)
-
-
-probe1.to_csv('Data/S01/probe1_channel_montage.csv', index=False, sep=',')
-probe2.to_csv('Data/S01/probe2_channel_montage.csv', index=False, sep=',')
-
-probe1.to_csv('Data/S34/probe1_channel_montage.csv', index=False, sep=',')
-probe2.to_csv('Data/S34/probe2_channel_montage.csv', index=False, sep=',')
-df.to_csv('Data/S34/0001_edit.csv', index=False, sep=',')
-
-
-probe1.to_csv('Data/S33/probe1_channel_montage.csv', index=False, sep=',')
-probe2.to_csv('Data/S33/probe2_channel_montage.csv', index=False, sep=',')
-df.to_csv('Data/S33/0001_edit.csv', index=False, sep=',')
-
-
-probe1.to_csv('Data/S11/probe1_channel_montage.csv', index=False, sep=',')
-probe2.to_csv('Data/S11/probe2_channel_montage.csv', index=False, sep=',')
-df.to_csv('Data/S11/0001_edit.csv', index=False, sep=',')
-
-probe1.to_csv('Data/S11/probe1_channel_montage.csv', index=False, sep=',')
-probe2.to_csv('Data/S11/probe2_channel_montage.csv', index=False, sep=',')
-df.to_csv('Data/S11/0001_edit.csv', index=False, sep=',')
-"""
-
 
 def create_0001_edit(number):
+    """
+    The function creates a pos to csv converted file called 0001_edit.csv in all subfolders
+    :param number: int of a file number
+    :returns None
+    """
     os.makedirs('C:/Users/rebec/fNIRS-project/Data', exist_ok=True)
 
     # write .pos to .csv
@@ -167,7 +96,6 @@ def create_0001_edit(number):
 
     # right hemisphere
 
-
     new_names_2 = ['S9', 'D8','S10', 'D9','S11', 'D10','S12', 'D11','S13', 'D12','S14', 'D13','S15', 'D14','S16']
 
     # new_names_2 = 'S11 D10 S10 D9 S9 D13 S13 D12 S12 D11 S16 D15 S15 D14 S14'.split()
@@ -186,7 +114,7 @@ def create_0001_edit(number):
     df.to_csv('Data/S' + str(number) + '/0001_edit.csv', index=False, sep=',')
     return
 
-
+# list of number of participants ( all existing subfolders ) in Data
 number = ['01', '04', '05', '06', '07', '08', '09', 11, 12, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 37]
 
 for n in number:
