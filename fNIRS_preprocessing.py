@@ -3,8 +3,9 @@
 # using MNE-python https://mne.tools/stable/index.html
 
 import sys
+
 sys.path.append('C:/Users/rebec/fNIRS-project/manuel_montage.py')
-import mne 
+import mne
 from matplotlib import animation
 import manuel_montage
 import os.path as op
@@ -21,6 +22,7 @@ from mne_nirs.statistics import run_glm
 from mne_nirs.channels import (get_long_channels, get_short_channels, picks_pair_to_idx)
 from nilearn.plotting import plot_design_matrix
 from mne.preprocessing.nirs import (optical_density, temporal_derivative_distribution_repair)
+
 
 # Preprocessing of fNIRS
 # ----------------------------------------------------------------------------------------------------------------------
@@ -59,8 +61,8 @@ def self_montage(file_path, csv_file):
 
 # def init():
 #    """ initialize starting simulation """
-    #    fig.gca().view_init(azim=-65, elev=25)
-    # return [fig]
+#    fig.gca().view_init(azim=-65, elev=25)
+# return [fig]
 
 
 # def animate(i):
@@ -97,9 +99,27 @@ def save_in_file(participant, new_name):
     return 'Data/' + str(participant) + '/' + str(new_name)
 
 
+def clean_events(events_numpy):
+    a = events_numpy
+    ids = [0, ]
+    consecutives = 0
+    for i in range(1, len(a)):
+
+        if a[i, -1] != a[i - 1, -1]:
+            consecutives = 0
+        else:
+            consecutives += 1
+
+        if consecutives % 2 == 0:
+            ids.append(i)
+
+    return a[ids]
+
+
 def more_raw_annotations(raw):
     """Annotations for Raw intensity """
-    events_ = mne.find_events(raw)
+    events = mne.find_events(raw)
+    events_ = clean_events(events)
     event_dict_ = {
         '(Sp)': 1,
         '(Rot-TS)': 2,
@@ -120,19 +140,21 @@ def more_raw_annotations(raw):
              color='gray',
              event_color={1: 'r', 2: 'g', 3: 'b', 4: 'm', 5: 'y'})
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 # test on first participant data: S11 (no bad channels)
 
 # get raw-object
 
 
-#raw1 = read_hitachi('Data/S11/S11_MES_Probe1.csv')  # only left hemisphere
+# raw1 = read_hitachi('Data/S11/S11_MES_Probe1.csv')  # only left hemisphere
 # raw2 = read_hitachi('Data/S11/S11_MES_Probe2.csv') # only right hemisphere
-raw = read_hitachi(['C:/Users/rebec/fNIRS-project/Data/S11/S11_MES_Probe1.csv', 'C:/Users/rebec/fNIRS-project/Data/S11/S11_MES_Probe2.csv']) # both hemis.
+raw = read_hitachi(['C:/Users/rebec/fNIRS-project/Data/S11/S11_MES_Probe1.csv',
+                    'C:/Users/rebec/fNIRS-project/Data/S11/S11_MES_Probe2.csv'])  # both hemis.
 
-
-montage11 = self_montage(file_path='C:/Users/rebec/fNIRS-project/Data/S11/0001.pos', csv_file='C:/Users/rebec/fNIRS-project/Data/S11/0001_edit.csv') # both hemis.
-#montage11_1 = self_montage(file_path='Data/S11/0001.pos', csv_file='C:/Users/rebec/fNIRS-project/Data/S11/probe1_channel_montage.csv') # only left
+montage11 = self_montage(file_path='C:/Users/rebec/fNIRS-project/Data/S11/0001.pos',
+                         csv_file='C:/Users/rebec/fNIRS-project/Data/S11/0001_edit.csv')  # both hemis.
+# montage11_1 = self_montage(file_path='Data/S11/0001.pos', csv_file='C:/Users/rebec/fNIRS-project/Data/S11/probe1_channel_montage.csv') # only left
 
 raw.set_montage(montage11)  # both hemis.
 
@@ -142,32 +164,33 @@ raw.set_montage(montage11)  # both hemis.
 raw.load_data()
 
 events = mne.find_events(raw)
-event_dict  =  {'(Sp)':1,
-     '(Rot-TS)':2 ,
-     '(Rot-Blesser)':3,
-     '(NV)':4,
-     ' (NV-Rot)':5}
+events = clean_events(events)
 
+more_raw_annotations(raw)
+
+event_dict = {'(Sp)': 1,
+              '(Rot-TS)': 2,
+              '(Rot-Blesser)': 3,
+              '(NV)': 4,
+              ' (NV-Rot)': 5}
 
 epochs = mne.Epochs(raw, events, tmin=-0.3, tmax=10, event_id=event_dict)
-print(events)
+
 event_desc = {v: k for k, v in event_dict.items()}
-mne.annotations_from_events(events=events,sfreq=raw.info['sfreq'],event_desc=event_desc)
+
+mne.annotations_from_events(events=events, sfreq=raw.info['sfreq'], event_desc=event_desc)
 # epochs.plot(n_epochs=10)
 picks = mne.pick_types(raw.info, meg=False, fnirs=True)
-dists = mne.preprocessing.nirs.source_detector_distances(
-    raw.info, picks=picks)
+dists = mne.preprocessing.nirs.source_detector_distances(raw.info, picks=picks)
 raw.pick(picks[dists > 0.01])
-raw.plot(n_channels=len(raw.ch_names),
-          duration=5000, show_scrollbars=False)
+raw.plot(n_channels=len(raw.ch_names), duration=5000, show_scrollbars=False)
 
 mne.datasets.fetch_fsaverage(subjects_dir=None, verbose=True)
 brain = mne.viz.Brain('fsaverage', subjects_dir=None, background='white', cortex='0.7')
-brain.add_sensors(raw.info, trans='fsaverage', fnirs=['channels','pairs','sources', 'detectors'])
+brain.add_sensors(raw.info, trans='fsaverage', fnirs=['channels', 'pairs', 'sources', 'detectors'])
 
 brain.show_view(azimuth=20, elevation=90, distance=800)
 brain.save_image('C:/Users/rebec/fNIRS-project/Data/S11/sensors.png')
-
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -200,13 +223,12 @@ for angle in range(0, 360):
 
 
 # ---------------------------------------------------------------------------------------------
-# plot 
+# plot
 
-# raw1.plot(n_channels=len(raw1.ch_names), duration=5000, show_scrollbars=False)
 
 # converting raw to optical density
 raw_od = mne.preprocessing.nirs.optical_density(raw)
-# raw_od.plot(n_channels=len(raw_od.ch_names), duration=5000, show_scrollbars=False)
+raw_od.plot(n_channels=len(raw_od.ch_names), duration=5000, show_scrollbars=False)
 
 # evaluate quality of data
 sci = mne.preprocessing.nirs.scalp_coupling_index(raw_od)
@@ -216,43 +238,42 @@ ax.set(xlabel='Scalp Coupling Index', ylabel='Count', xlim=[0, 1])
 # set bads
 raw_od.info['bads'] = list(compress(raw_od.ch_names, sci < 0.5))
 
-# converting optical density to haemoglobin 
+# converting optical density to haemoglobin
 raw_haemo = mne.preprocessing.nirs.beer_lambert_law(raw_od, ppf=0.57)
 raw_haemo.plot(n_channels=len(raw_haemo.ch_names),
                duration=500, show_scrollbars=False)
-       
 
-# removing heart rate 
-#fig = raw_haemo.plot_psd(average=True)
-#fig.suptitle('Before filtering', weight='bold', size='x-large')
-#fig.subplots_adjust(top=0.88)
-#raw_haemo = raw_haemo.filter(0.05, 0.7, h_trans_bandwidth=0.2,
+# removing heart rate
+# fig = raw_haemo.plot_psd(average=True)
+# fig.suptitle('Before filtering', weight='bold', size='x-large')
+# fig.subplots_adjust(top=0.88)
+# raw_haemo = raw_haemo.filter(0.05, 0.7, h_trans_bandwidth=0.2,
 #                             l_trans_bandwidth=0.02)
-#fig = raw_haemo.plot_psd(average=True)
-#fig.suptitle('After filtering', weight='bold', size='x-large')
-#fig.subplots_adjust(top=0.88)
-       
+# fig = raw_haemo.plot_psd(average=True)
+# fig.suptitle('After filtering', weight='bold', size='x-large')
+# fig.subplots_adjust(top=0.88)
 
 
-fig = mne.viz.plot_events(events,
-                          event_id=event_dict,
-                          sfreq=raw_haemo.info['sfreq'])
+# fig = mne.viz.plot_events(events,
+#                          event_id=event_dict,
+#                          sfreq=raw_haemo.info['sfreq'])
+
 fig.subplots_adjust(right=0.7)  # make room for the legend
 
 reject_criteria = dict(hbo=80e-6)
 tmin, tmax = -5, 15
 
-epochs = mne.Epochs(raw_haemo, events, event_id=event_dict,
-                    tmin=tmin, tmax=tmax,
-                    reject=reject_criteria, reject_by_annotation=True,
-                    proj=True, baseline=(None, 0), preload=True,
-                    detrend=None, verbose=True)
+# epochs = mne.Epochs(raw_haemo, events, event_id=event_dict,
+#                    tmin=tmin, tmax=tmax,
+#                    reject=reject_criteria, reject_by_annotation=True,
+#                    proj=True, baseline=(None, 0), preload=True,
+#                    detrend=None, verbose=True)
 
 
 # ---------------------------------------------------------------------------------------------
 
 # Converting from raw intensity to optical density
 
-# raw_od = mne.preprocessing.nirs.optical_density(raw)
+raw_od = mne.preprocessing.nirs.optical_density(raw)
 
-# raw_od.plot(n_channels=len(raw_od.ch_names),duration=500, show_scrollbars=False)
+raw_od.plot(n_channels=len(raw_od.ch_names), duration=500, show_scrollbars=False)

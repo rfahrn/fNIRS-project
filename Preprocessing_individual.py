@@ -38,6 +38,24 @@ def self_montage(file_path, csv_file):
     return mne.channels.make_dig_montage(ch_pos=ch_pos, nasion=nasion, lpa=lpa, rpa=rpa,
                                          hsp=hsp, hpi=None, coord_frame='mri')
 
+# clean events - double triggers
+def clean_events(events_numpy):
+    """
+    removes double triggering after found events
+    :param events_numpy: events array that should be cleaned
+    :return cleaned event array"""
+    a = events_numpy
+    ids = [0,]
+    consecutives = 0
+    for i in range(1, len(a)):
+        if a[i,-1]!=a[i-1,-1]:
+            consecutives=0
+        else:
+            consecutives+=1
+        if consecutives%2==0:
+            ids.append(i)
+    return a[ids]
+
 
 # read Hitachi data
 raw = read_hitachi(['C:/Users/rebec/fNIRS-project/Data/S11/S11_MES_Probe1.csv', 'C:/Users/rebec/fNIRS-project/Data/S11/S11_MES_Probe2.csv'])
@@ -51,6 +69,8 @@ raw.load_data()
 
 # read Events from Hitachi-Raw and create an annotation
 events = mne.find_events(raw)
+events = clean_events(events)
+
 event_dict = {'Sp': 1,
               'Rot-TS': 2,
               'Rot-Blesser': 3,
