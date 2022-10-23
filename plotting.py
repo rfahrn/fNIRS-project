@@ -1,21 +1,25 @@
 # Author: Rebecka Fahrni
 # script for plotting
+# MNE-bids datastructure is needed for the group analysis
+# script for plotting 2d sensors and BIDS creation for later group analysis
 
 import sys
-
 sys.path.append('C:/Users/rebec/fNIRS-project/manuel_montage.py')
 sys.path.append('C:/Users/rebec/fNIRS-project/Preprocessing_individual.py')
 import manuel_montage, Preprocessing_individual
 import numpy as np
-import matplotlib.pyplot as plt
-from itertools import compress
 import mne
 import os
-
+import manuel_montage, Preprocessing_individual
+import matplotlib.pyplot as plt
+from itertools import compress
+from mne_bids import BIDSPath,  print_dir_tree, make_report, write_raw_bids
+from Preprocessing_individual import clean_events
 
 def plot_sensors(number):
+    """saves plots into files """
     os.makedirs('C:/Users/rebec/fNIRS-project/Data', exist_ok=True)
-
+    # setting file paths 
     file_path1_raw = 'Data/S' + str(number) + '/S' + str(number) + '_MES_Probe1.csv'
     file_path2_raw = 'Data/S' + str(number) + '/S' + str(number) + '_MES_Probe2.csv'
     file_path_pos = 'Data/S' + str(number) + '/0001.pos'
@@ -27,6 +31,7 @@ def plot_sensors(number):
         number) + '.png'
     file_path_save_sensors = 'C:/Users/rebec/fNIRS-project/Plots/Sensors_individual/sensor_S' + str(number) + '.png'
     file_path_SCI = 'C:/Users/rebec/fNIRS-project/Plots/SCI/SCI_S' + str(number) + '.png'
+    file_path_save_sensor_movie = 'C:/Users/rebec/fNIRS-project/Plots/Sensors_individual/sensor_movie_S' + str(number) + '.gif'
 
     # read raw
     raw = Preprocessing_individual.read_hitachi([file_path1_raw, file_path2_raw])
@@ -74,10 +79,15 @@ def plot_sensors(number):
     # plot sensors
     mne.datasets.fetch_fsaverage(subjects_dir=None, verbose=True)
     brain = mne.viz.Brain('fsaverage', subjects_dir=None, background='white', cortex='0.7')
+    brain.add_label('aparc', hemi='lh', color='green') # broadmann area 22
+    # brain.add_label('BA21', hemi='lh', color='blue', borders=True) # broadmann area 21
+    # brain.add_label('BA42', hemi='lh', color='orange', borders=True) # broadmann area 42
+    # brain.add_label('BA41', hemi='lh', color='red', borders=True) # broadmann area 41
     brain.add_sensors(raw.info, trans='fsaverage', fnirs=['channels', 'pairs', 'sources', 'detectors'])
 
     brain.show_view(azimuth=20, elevation=90, distance=800)
     brain.save_image(file_path_save_sensors)
+    
 
     # converting raw to optical density
     raw_od = mne.preprocessing.nirs.optical_density(raw)
@@ -106,4 +116,53 @@ list_folders = ['01', '04', '05', '07', '08', '09', 11, 12, 15, 16, 17, 18, 30, 
 for n in list_folders:
     plot_sensors(n)
 
+# -------------------------------------------------------------------------------
+
+
+def gen_file(number):
+    """generates files/plots creates BIDS datastructure and saves them"""
+    os.makedirs('C:/Users/rebec/fNIRS-project/Data', exist_ok=True)
+    # setting file paths
+    file_bids_path = BIDSPath(subject=str(number),description='uncleaned',)
+    file_path1_raw = 'Data/S' + str(number) + '/S' + str(number) + '_MES_Probe1.csv'
+    file_path2_raw = 'Data/S' + str(number) + '/S' + str(number) + '_MES_Probe2.csv'
+    file_path_pos = 'Data/S' + str(number) + '/0001.pos'
+    file_path_csv = 'Data/S' + str(number) + '/0001_edit.csv'
+    file_path_save_sensors_2d = 'C:/Users/rebec/fNIRS-project/Plots/Sensors_individual/sensor_2d_S' + str(number) + '.png'
+
+    # read raw
+    raw = Preprocessing_individual.read_hitachi([file_path1_raw, file_path2_raw])
+
+    montage = Preprocessing_individual.self_montage(file_path_pos, file_path_csv)
+    raw.set_montage(montage)
+    
+    event_dict = {'Sp': 1,
+                  'Rot-TS': 2,
+                  'Rot-Blesser': 3,
+                  'NV': 4,
+                  'NV-Rot': 5}
+
+    events = mne.find_events(raw)
+    events = clean_events(events)
+      
+    event_desc = {v: k for k, v in event_dict.items()}
+      
+    # write and set annotations
+    annotation = mne.annotations_from_events(events=events, sfreq=raw.info['sfreq'],
+                                               event_desc=event_desc,
+                                               orig_time=raw.info['meas_date'])
+    raw.set_annotations(annotation)
+    raw.annotations.set_durations(20)
+      
+    bids_path = BIDSPath(subject=str(number),task='intelligible speech',
+                           description='uncleaned', root='C:/Users/rebec/fNIRS-project/Data/BIDS')
+      
+    write_raw_bids(raw, bids_path, events=events, event_id=event_desc, montage=montage)
+  
+list_folders = ['01', '04', '05','06', '07', '08', '09', 11, 12, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36,
+                37]  
+
+
+for i in list_folders:
+    gen_file(i)
 

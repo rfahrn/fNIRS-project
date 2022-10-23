@@ -99,7 +99,7 @@ def save_in_file(participant, new_name):
     return 'Data/' + str(participant) + '/' + str(new_name)
 
 
-def clean_events(events_numpy):
+def clean_events(events_numpy): # or event = event[::2]
     a = events_numpy
     ids = [0, ]
     consecutives = 0

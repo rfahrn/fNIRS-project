@@ -101,8 +101,7 @@ dists = mne.preprocessing.nirs.source_detector_distances(
 raw.pick(picks[dists > 0.01])
 raw.plot(n_channels=len(raw.ch_names), duration=2000, show_scrollbars=False)
 
-# epochs = mne.Epochs(raw, events, event_id, tmin, tmax)
-epochs = mne.Epochs(raw, events, tmin=-0.2, tmax=7, event_id=event_dict)
+
 
 # Converting raw intensity to optical density
 raw_od = mne.preprocessing.nirs.optical_density(raw)
@@ -121,7 +120,7 @@ ax.hist(sci)
 ax.set(xlabel='Scalp Coupling Index', ylabel='Count', xlim=[0, 1])
 
 # set SCI less than 0.5 as bad channel!
-raw_od.info['bads'] = list(compress(raw_od.ch_names, sci < 0.5))
+raw_od.info['bads'] = list(compress(raw_od.ch_names, sci < 0.75))
 
 # -----------------------------------------------------------------------------
 # convert optical density data to haemoglobin concentration using modified Beer-Lambert law
@@ -129,6 +128,13 @@ raw_od.info['bads'] = list(compress(raw_od.ch_names, sci < 0.5))
 raw_haemo = mne.preprocessing.nirs.beer_lambert_law(raw_od, ppf=0.57)  # ppf - easynirs - ppf 6.3 5.7
 # raw_haemo.plot(n_channels=len(raw_haemo.ch_names),
 #                duration=2000, show_scrollbars=False)
+
+# epochs = mne.Epochs(raw, events, event_id, tmin, tmax)
+tmin,tmax =-5,20
+epochs = mne.Epochs(raw_haemo, events, tmin=tmin, tmax=tmax, 
+                    event_id=event_dict,proj=True,baseline=(tmin,0),
+                    preload=True, verbose=True)
+
 
 # -----------------------------------------------------------------------------
 # Removing heart rate from signal
@@ -173,12 +179,12 @@ events, event_dict = mne.events_from_annotations(raw_haemo)
 # Visualize log of which epochs were dropped.
 
 reject_criteria = dict(hbo=80e-6)  # rejection criteria
-tmin, tmax = -5, 15
+tmin, tmax = -5, 20
 
 epochs = mne.Epochs(raw_haemo, events, event_id=event_dict,
                     tmin=tmin, tmax=tmax,
                     reject=reject_criteria, reject_by_annotation=True,
-                    proj=True, baseline=(None, 0), preload=True,
+                    proj=True, baseline=(tmin, 0), preload=True,
                     detrend=None, verbose=True)
 
 # epochs.plot_drop_log()
@@ -218,12 +224,12 @@ epochs['NV-Rot'].plot_image(combine='mean', vmin=-30, vmax=30,
 
 evoked_dict = {'Sp/HbO': epochs['Sp'].average(picks='hbo'),
                'Sp/HbR': epochs['Sp'].average(picks='hbr'),
-               'Rot-TS/HbO': epochs['Rot-TS'].average(picks='hbo'),
-               'Rot-TS/HbR': epochs['Rot-TS'].average(picks='hbr'),
-               'Rot-Blesser/HbO': epochs['Rot-Blesser'].average(picks='hbo'),
-               'Rot-Blesser/HbR': epochs['Rot-Blesser'].average(picks='hbr'),
-               'NV-Rot/HbO': epochs['NV-Rot'].average(picks='hbo'),
-               'NV-Rot/HbR': epochs['NV-Rot'].average(picks='hbr'),
+               #'Rot-TS/HbO': epochs['Rot-TS'].average(picks='hbo'),
+               #'Rot-TS/HbR': epochs['Rot-TS'].average(picks='hbr'),
+               #'Rot-Blesser/HbO': epochs['Rot-Blesser'].average(picks='hbo'),
+               #'Rot-Blesser/HbR': epochs['Rot-Blesser'].average(picks='hbr'),
+               #'NV-Rot/HbO': epochs['NV-Rot'].average(picks='hbo'),
+               #'NV-Rot/HbR': epochs['NV-Rot'].average(picks='hbr'),
                }
 # Rename channels until the encoding of frequency in ch_name is fixed
 for condition in evoked_dict:
