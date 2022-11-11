@@ -48,6 +48,7 @@ from mne.preprocessing.nirs import beer_lambert_law, optical_density,\
 from mne_nirs.signal_enhancement import enhance_negative_correlation
 import mne
 from mne.datasets import sample
+import Preprocessing_individual
 
 from mne_bids import (write_raw_bids, read_raw_bids, write_meg_calibration,
                       write_meg_crosstalk, BIDSPath, print_dir_tree,
@@ -55,28 +56,20 @@ from mne_bids import (write_raw_bids, read_raw_bids, write_meg_calibration,
 from mne_bids.stats import count_events
 
 
-def read_fif_files(directory):
-    #TO DO create all fif files out all the participants
-    
-    # TO DO write them in a bids_directory 
-    
-    pass
-
-# define individual analysis
-
 # read raw to bids:
-def get_rew(file_path, raw, bids_path):
+def get_raw(file_path, raw_path, bids_path, montage_path_pos, csv):
     write_raw_bids(raw, bids_path, events=None, event_id=None, anonymize=None,
                             format='auto', symlink=False, empty_room=None,
-                            allow_preload=False, montage=None, acpc_aligned=False,
-                            overwrite=False, events_data=None, verbose=None)
+                            allow_preload=False, montage= False, acpc_aligned=False,
+                            overwrite=True, events_data=None, verbose=None)
 
 
-root = fnirs_motor_group.data_path()
+root = r'C:\Users\rebec\fNIRS-project\Data\BIDS'
 print(root)
 
-dataset = BIDSPath(root=root, task="tapping",
-                   datatype="nirs", suffix="nirs", extension=".csv")
+dataset = BIDSPath(root=root, task="speech",
+                   datatype="nirs", suffix="nirs", 
+                   description = 'uncleaned', extension=".csv")
 
 print(dataset.directory)
 
