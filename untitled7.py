@@ -4,7 +4,7 @@
 # iterate and generate raw.fif
 import sys
 sys.path.append(r'C:/Users/rebec/fNIRS-project/manuel_montage.py') 
-sys.path.append(r'C:/Users/rebec/fNIRS-project/èreprocessing_individual.py') 
+sys.path.append(r'C:/Users/rebec/fNIRS-project/Preprocessing_individual.py') 
 import  Preprocessing_individual
 import mne
 import mne_bids
@@ -53,6 +53,7 @@ def gen_file(list_participants):
         #raw.save(file_path,overwrite=True) # saved them as fif files 
 
 list_par = ['01','04','05','07','08','09',11,12,16,17,18,30,31,32, 33,34,35,36,37] # problem 15 und 06
+
 
 # gen_file(list_par) # AssertionError: Data must be fnirs_cw_amplitude
 
@@ -110,7 +111,7 @@ def get_bids_snirf(part_list):
                             overwrite=True) 
 
 
-get_bids_snirf(list_par) #  if allow_preload = False: ValueError: The data is already loaded from disk and may be altered. See warning for "allow_preload".
+# get_bids_snirf(list_par) #  if allow_preload = False: ValueError: The data is already loaded from disk and may be altered. See warning for "allow_preload".
 #  ValueError: For preloaded data, you must set the "format" parameter to one of: BrainVision, EDF, or FIF
 
 # read raw to bids from fif
@@ -118,10 +119,13 @@ def get_bids_fif(part_list):
     root = r'C:\Users\rebec\fNIRS-project\Data\BIDS_1'
     
     for part in part_list:
+        hitachi_1 = 'C:/Users/rebec/fNIRS-project/Data/S' + str(part) +'/S' + str(part) + '_MES_Probe2.csv'
+        hitachi_2 = 'C:/Users/rebec/fNIRS-project/Data/S' + str(part) +'/S' + str(part) + '_MES_Probe2.csv'
         montage_path_csv = 'C:/Users/rebec/fNIRS-project/Data/S' + str(part) + '/0001_edit.csv'
         montage_path_pos = 'C:/Users/rebec/fNIRS-project/Data/S' + str(part) +'/0001.pos'
         file_path = r'C:\Users\rebec\fNIRS-project\Data\S'+str(part)+'\FIF_'+str(part)+'_raw.fif' # read fif files 
-        raw = mne.io.read_raw_fif(file_path).load_data()
+        #raw = mne.io.read_raw_fif(file_path).load_data()
+        raw = Preprocessing_individual.read_hitachi([hitachi_1,hitachi_2])
         montage = Preprocessing_individual.self_montage(file_path=montage_path_pos, csv_file=montage_path_csv) 
         raw.set_montage(montage)
         # read Events from Hitachi-Raw and create an annotation 
@@ -152,7 +156,7 @@ def get_bids_fif(part_list):
                                 events=events,
                                 event_id = event_dict,
                                 montage=montage,
-                                format="FIF",
+                                format="auto",
                             overwrite=True, allow_preload=True) 
 
-#get_bids_fif(list_par) # IndexError: index 88 is out of bounds for axis 0 with size 88
+get_bids_fif(list_par) # IndexError: index 88 is out of bounds for axis 0 with size 88
